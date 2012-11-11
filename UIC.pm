@@ -23,7 +23,7 @@ sub parse_data {
 }
 
 # register a command handler.
-# $uic->register_register('someCommand', {
+# $uic->register_handler('someCommand', {
 #     someParameter => 'number',  # an integer or decimal
 #     someOther     => 'string',  # a plain old string
 #     anotherParam  => 'user',    # a user ID
@@ -77,7 +77,8 @@ sub fire_handler {
         # process parameter types.
         my %final_params;
         foreach my $parameter (keys %{$h->{parameters}}) {
-            $final_params{$parameter} = $uic->interpret_string_as($h->{parameters}{$parameter}, $parameter);
+            $final_params{$parameter} = $uic->interpret_string_as($h->{parameters}{$parameter}, $parameters{$parameter})
+            if exists $parameters{$parameter};
         }
         
         # create information object.
