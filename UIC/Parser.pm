@@ -260,8 +260,8 @@ sub decode_json {
     my $json_data = shift;
 
     # ensure that the types are valid.
-    return unless ref $json_data eq 'ARRAY';use feature 'say'; say 'got past array';
-    return if ref $json_data->[1] && ref $json_data->[1] ne 'HASH';say 'got past hash';
+    return unless ref $json_data eq 'ARRAY';
+    return if ref $json_data->[1] && ref $json_data->[1] ne 'HASH';
     
     # create the hashref.
     return {
