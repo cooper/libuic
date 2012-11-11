@@ -77,8 +77,8 @@ sub fire_handler {
         # process parameter types.
         my %final_params;
         foreach my $parameter (keys %{$h->{parameters}}) {
-            $final_params{$parameter} = $uic->interpret_string_as($h->{parameters}{$parameter}, $parameters{$parameter})
-            if exists $parameters{$parameter};
+            $final_params{$parameter} = $uic->interpret_string_as($h->{parameters}{$parameter}, $parameters->{$parameter})
+            if exists $parameters->{$parameter};
         }
         
         # create information object.
