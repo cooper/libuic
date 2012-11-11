@@ -37,6 +37,13 @@ sub parse_line {
             # if we are inside a parameter value, the space is accounted for.
             if ($current{inside_parameter}) {
             
+                # parameter names must be alphanumeric/_.
+                if ($char !~ m/\w/) {
+                    # illegal error. disconnect. could also be JSON.
+                    $@ = "character '$char' is illegal in parameter names";
+                    return;
+                }
+            
                 # if there is no value, set it to an empty string.
                 $current{parameter_value} = q()
                 if !defined $current{parameter_value};
@@ -169,6 +176,13 @@ sub parse_line {
                         $final{command_name}   = $current{command_name};
                         next CHAR;
                         
+                    }
+                    
+                    # command names must be alphanumeric/_.
+                    if ($char !~ m/\w/) {
+                        # illegal error. disconnect. could also be JSON.
+                        $@ = "character '$char' is illegal in command name";
+                        return;
                     }
                     
                     # if the command name doesn't exist, create empty string.
