@@ -6,7 +6,7 @@ package UIC;
 use warnings;
 use strict;
 use utf8;
-use feature qw(say switch);
+use feature qw(switch);
 use parent 'UIC::EventedObject';
 
 use UIC::EventedObject;
@@ -33,18 +33,18 @@ sub parse_data {
 # }, \&myHandler, 200);
 # returns a handler identifier.
 sub register_handler {
-    my ($uic, $command, $parameters, $callback, $priority) = @_;                    say("registering $command");
+    my ($uic, $command, $parameters, $callback, $priority) = @_;
     $priority ||= 0;
     
     # make sure callback is CODE and parameters is HASH.
-    return if !ref $callback   || ref $callback ne 'CODE';                          say("got past CODE");
-    return if !ref $parameters || ref $parameters ne 'HASH';                        say("got past HASH");
+    return if !ref $callback   || ref $callback ne 'CODE';
+    return if !ref $parameters || ref $parameters ne 'HASH';
     
     # make sure the types are valid.
     my @valid = qw(number bool string user server channel);
     foreach my $parameter (keys %$parameters) {
         return unless scalar grep { $parameters->{$parameter} } @valid;
-    }                                                                               say("got past valid");
+    }
     
     # store the handler.
     $uic->{handlers}{$command}{$priority} ||= [];
@@ -53,7 +53,7 @@ sub register_handler {
         callback   => $callback,
         parameters => $parameters,
         priority   => $priority
-    };                                                                              say("registered it");
+    };
     
     return defined $uic->{handlerID} ? ++$uic->{handlerID} : ($uic->{handlerID} = 0);
 }
@@ -65,18 +65,18 @@ sub register_handler {
 # });
 sub fire_handler {
     my ($uic, $command, $parameters) = @_;
-                                                                                    say("firing handler $command");
+
     # no handlers for this command.
-    return unless $uic->{handlers}{$command};                                       say("got past return");
+    return unless $uic->{handlers}{$command};
     
     # call each handler.
     my $return = {};
-    foreach my $priority (sort { $b <=> $a } keys %{$uic->{handlers}{$command}}) {  say("priority $priority");
-    foreach my $h (@{$uic->{handlers}{$command}{$priority}}) {                      say("h: $$h{command}");
+    foreach my $priority (sort { $b <=> $a } keys %{$uic->{handlers}{$command}}) {
+    foreach my $h (@{$uic->{handlers}{$command}{$priority}}) {
     
         # process parameter types.
         my %final_params;
-        foreach my $parameter (keys %{$h->{parameters}}) {                          say("parameter: $parameter");
+        foreach my $parameter (keys %{$h->{parameters}}) {
             $final_params{$parameter} = $uic->interpret_string_as($h->{parameters}{$parameter}, $parameters->{$parameter})
             if exists $parameters->{$parameter};
         }
