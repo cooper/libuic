@@ -13,6 +13,7 @@ use UIC::EventedObject;
 use UIC::Server;
 use UIC::User;
 use UIC::Channel;
+use UIC::Parser;
 
 use Scalar::Util 'looks_like_number';
 
