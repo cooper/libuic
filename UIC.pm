@@ -46,16 +46,21 @@ sub register_handler {
         return unless scalar grep { $parameters->{$parameter} } @valid;
     }
     
+    # generate an identifier.
+    my $id = defined $uic->{handlerID} ? ++$uic->{handlerID} : ($uic->{handlerID} = 0);
+    
     # store the handler.
     $uic->{handlers}{$command}{$priority} ||= [];
     push @{$uic->{handlers}{$command}{$priority}}, {
         command    => $command,
         callback   => $callback,
         parameters => $parameters,
-        priority   => $priority
+        priority   => $priority,
+        package    => (caller)[0],
+        id         => $id    
     };
     
-    return defined $uic->{handlerID} ? ++$uic->{handlerID} : ($uic->{handlerID} = 0);
+    return $id;
 }
 
 # fire a command's handlers.
