@@ -41,7 +41,7 @@ sub register_handler {
     return if !ref $parameters || ref $parameters ne 'HASH';                        say("got past HASH");
     
     # make sure the types are valid.
-    my @valid = qw(number string user server channel);
+    my @valid = qw(number bool string user server channel);
     foreach my $parameter (keys %$parameters) {
         return if !($parameter ~~ @valid);
     }                                                                               say("got past valid");
