@@ -40,7 +40,7 @@ sub parse_line {
                 # parameter names must be alphanumeric/_.
                 if ($char !~ m/\w/) {
                     # illegal error. disconnect. could also be JSON.
-                    $@ = "character '$char' is illegal in parameter names";
+                    $@ = "character '$char' is illegal in parameter name";
                     return;
                 }
             
@@ -64,7 +64,7 @@ sub parse_line {
             # if there is no command, something surely has gone wrong. ex: [] or [:]
             if (!defined $current{command_name}) {
                 # illegal error. disconnect.
-                $@ = 'no command name specified';
+                $@ = 'message is completely empty';
                 return;
             }
             
@@ -73,7 +73,7 @@ sub parse_line {
             # if there is a parameter name, we have a problem.
             if (defined $current{parameter_name}) {
                 # illegal error. disconnect.
-                $@ = 'termination inside of parameter name';
+                $@ = 'message was terminated inside of parameter name';
                 return;
             }
         
@@ -107,7 +107,7 @@ sub parse_line {
                         # if there is no parameter, something is wrong. ex: [command: (value)]
                         if (!defined $current{parameter_name}) {
                             # illegal error. disconnect.
-                            $@ = 'parameter value has no name';
+                            $@ = 'a parameter has no name';
                             return;
                         }
                         
@@ -167,7 +167,7 @@ sub parse_line {
                         # if there is no command at all, something is wrong.
                         if (!defined $current{command_name}) {
                             # illegal error. disconnect. ex: [:] or [:someParameter(etc)]
-                            $@ = 'empty command name';
+                            $@ = 'message has no command name';
                             return;
                         }
                     
@@ -197,7 +197,7 @@ sub parse_line {
             
             # not inside of a message; illegal!
             else {
-                $@ = 'characters outside of brackets';
+                $@ = "character '$char' is outside of message bounds";
                 return;
             }
                 
