@@ -15,12 +15,20 @@ use UIC::User;
 use UIC::Channel;
 use UIC::Parser;
 
-use Scalar::Util 'looks_like_number';
+use Scalar::Util qw(looks_like_number blessed);
+
+######################
+### HANDLING DATA ####
+######################
 
 sub parse_data {
     my ($uic, $data) = @_;
     # blah blah, call handlers.
 }
+
+#################################
+### MANAGING COMMAND HANDLERS ###
+#################################
 
 # register a command handler.
 # $uic->register_handler('someCommand', {
@@ -99,6 +107,10 @@ sub fire_handler {
     }}
 }
 
+############################
+### UIC TYPE CONVERSIONS ###
+############################
+
 # UIC type conversions. true hackery.
 sub interpret_string_as {
     my ($uic, $type, $string) = @_;
@@ -138,6 +150,71 @@ sub interpret_string_as {
     return;
 }
 
-# handler($parameters, $return, $info)
+###################
+### SUBCLASSING ###
+###################
+
+# finds a subclass of the object.
+# if $uic is of UIC class, $uic->subclass('User')
+# will return "UIC::Server".
+# if it is of subclass blah, "blah::Server".
+# 
+# using ->subclass makes it easy for UIC itself to
+# be subclassed without requiring the subclass to
+# implement every object creation method in UIC.
+sub subclass {
+    my ($uic, $subclass) = @_;
+    my $class = blessed($uic);
+    return "${class}::${subclass}";
+}
+
+########################
+### MANAGING SERVERS ###
+########################
+
+# create a server and associate it with this UIC object.
+sub new_server {
+    my ($uic, %opts) = @_;
+    my $server = $uic->subclass('Server')->new(%opts);
+    $uic->set_server_for_id($opts{id}, $server);
+    return $server;
+}
+
+# associate a server with an SID.
+sub set_server_for_id {
+    my ($uic, $id, $server) = @_;
+    $uic->{servers}{$id} = $server;
+    return $server;
+}
+
+# dispose of a server.
+sub remove_server {
+    my ($uic, $server) = @_;
+    delete $uic->{servers}{$server->{sid}};
+}
+
+# number of recognized servers.
+sub number_of_servers {
+    my $uic = shift;
+    return scalar keys %{$uic->{servers}};
+}
+
+# convenience for UIC clients: returns the only server.
+sub main_server {
+    my $uic = shift;
+    return (values %{$uic->{servers}})[0];
+}
+
+# returns a list of recognized servers.
+sub servers {
+    my $uic = shift;
+    return values %{$uic->{servers}};
+}
+
+# find a server by its SID.
+sub lookup_server_by_id {
+    my ($uic, $id) = @_;
+    return $uic->{servers}{$id};
+}
 
 1

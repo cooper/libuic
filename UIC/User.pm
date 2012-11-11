@@ -8,4 +8,12 @@ use strict;
 use utf8;
 use parent 'UIC::EventedObject';
 
+# create a new user.
+sub new {
+    my ($class, %opt) = @_;
+    my $server = bless \%opt, $class;
+    return $server;
+
+}
+
 1
