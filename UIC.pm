@@ -6,6 +6,7 @@ package UIC;
 use warnings;
 use strict;
 use utf8;
+use feature 'switch';
 use parent 'UIC::EventedObject';
 
 use UIC::EventedObject;
