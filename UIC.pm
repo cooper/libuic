@@ -65,18 +65,18 @@ sub register_handler {
 # });
 sub fire_handler {
     my ($uic, $command, $parameters) = @_;
-    
+                                                                                    log2("firing handler $command");
     # no handlers for this command.
-    return unless $uic->{handlers}{$command};
+    return unless $uic->{handlers}{$command};                                       log2("got past return");
     
     # call each handler.
     my $return = {};
-    foreach my $priority (sort { $b <=> $a } keys %{$uic->{handlers}{$command}}) {
-    foreach my $h (@{$uic->{handlers}{$command}{$priority}}) {
+    foreach my $priority (sort { $b <=> $a } keys %{$uic->{handlers}{$command}}) {  log2("priority $priority");
+    foreach my $h (@{$uic->{handlers}{$command}{$priority}}) {                      log2("h: $$h{command}");
     
         # process parameter types.
         my %final_params;
-        foreach my $parameter (keys %{$h->{parameters}}) {
+        foreach my $parameter (keys %{$h->{parameters}}) {                          log2("parameter: $parameter");
             $final_params{$parameter} = $uic->interpret_string_as($h->{parameters}{$parameter}, $parameters->{$parameter})
             if exists $parameters->{$parameter};
         }
