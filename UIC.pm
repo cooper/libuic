@@ -43,7 +43,7 @@ sub register_handler {
     # make sure the types are valid.
     my @valid = qw(number bool string user server channel);
     foreach my $parameter (keys %$parameters) {
-        return if !($parameter ~~ @valid);
+        return if !($parameters{parameter} ~~ @valid);
     }                                                                               say("got past valid");
     
     # store the handler.
