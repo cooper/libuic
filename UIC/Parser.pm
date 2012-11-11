@@ -196,12 +196,19 @@ sub parse_line {
 }
 
 # encode Perl data into a UIC message.
+#
+# not intended to convert IDs to objects, numbers to bools, etc.
+# simply takes a string and magically turns it into something it
+# already is. no conversion is done at all. this encodes Perl
+# data, and does absolutely nothing else.
+#
 # UIC::Parser::encode(
 #     command_name => 'hello',
 #     parameters   => {
 #         someParameter => 'someValue'
 #     }
 # );
+#
 # this is not intended to be used directly
 # other than in UIC and UICd APIs.
 sub encode {
@@ -218,7 +225,7 @@ sub encode {
     $uic .= q(: );
     
     # iterate through each parameter.
-    foreach my $parameter (keys %{$data->{parameters}}) {
+    foreach my $parameter (sort keys %{$data->{parameters}}) {
         $uic .= "$parameter($$data{parameters}{$parameter}) ";
     }
     
@@ -226,18 +233,5 @@ sub encode {
     $uic .= ']';
     return $uic;
 }
-
-use Data::Dumper;
-print Data::Dumper::Dumper encode(
-    'command_name' => 'hello',
-    parameters => {
-        someParameter => 'someValue',
-        someOtherParameter => 'someOtherValue'
-    }
-);
-
-print Data::Dumper::Dumper encode(
-    command_name => 'hi'
-);
 
 1
