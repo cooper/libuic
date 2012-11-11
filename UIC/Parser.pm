@@ -57,12 +57,14 @@ sub parse_line {
             # if there is no command, something surely has gone wrong. ex: [] or [:]
             if (!defined $current{command_name}) {
                 # illegal error. disconnect.
+                $@ = 'no command name specified';
                 return;
             }
         
             # if there is a parameter name, we have a problem.
             if (defined $current{parameter_name}) {
                 # illegal error. disconnect.
+                $@ = 'termination inside of parameter name';
                 return;
             }
         
@@ -96,6 +98,8 @@ sub parse_line {
                         # if there is no parameter, something is wrong. ex: [command: (value)]
                         if (!defined $current{parameter_name}) {
                             # illegal error. disconnect.
+                            $@ = 'parameter value has no name';
+                            return;
                         }
                         
                         # start the value.
@@ -154,6 +158,8 @@ sub parse_line {
                         # if there is no command at all, something is wrong.
                         if (!defined $current{command_name}) {
                             # illegal error. disconnect. ex: [:] or [:someParameter(etc)]
+                            $@ = 'empty command name';
+                            return;
                         }
                     
                         # colon received - done with command name.
@@ -175,7 +181,8 @@ sub parse_line {
             
             # not inside of a message; illegal!
             else {
-                # disconnect.
+                $@ = 'characters outside of brackets';
+                return;
             }
                 
             
