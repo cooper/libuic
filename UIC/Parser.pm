@@ -206,7 +206,7 @@ sub parse_line {
 # other than in UIC and UICd APIs.
 sub encode {
     my $data = {@_};
-    my $uic  = "[ $$data{comand_name}";
+    my $uic  = "[ $$data{command_name}";
 
     # if there are no parameters, we're pretty much done.
     if (!$data->{parameters} || !scalar keys %{$data->{parameters}}){
