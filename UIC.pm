@@ -6,7 +6,7 @@ package UIC;
 use warnings;
 use strict;
 use utf8;
-use feature 'switch';
+use feature qw(say switch);
 use parent 'UIC::EventedObject';
 
 use UIC::EventedObject;
@@ -65,18 +65,18 @@ sub register_handler {
 # });
 sub fire_handler {
     my ($uic, $command, $parameters) = @_;
-                                                                                    log2("firing handler $command");
+                                                                                    say("firing handler $command");
     # no handlers for this command.
-    return unless $uic->{handlers}{$command};                                       log2("got past return");
+    return unless $uic->{handlers}{$command};                                       say("got past return");
     
     # call each handler.
     my $return = {};
-    foreach my $priority (sort { $b <=> $a } keys %{$uic->{handlers}{$command}}) {  log2("priority $priority");
-    foreach my $h (@{$uic->{handlers}{$command}{$priority}}) {                      log2("h: $$h{command}");
+    foreach my $priority (sort { $b <=> $a } keys %{$uic->{handlers}{$command}}) {  say("priority $priority");
+    foreach my $h (@{$uic->{handlers}{$command}{$priority}}) {                      say("h: $$h{command}");
     
         # process parameter types.
         my %final_params;
-        foreach my $parameter (keys %{$h->{parameters}}) {                          log2("parameter: $parameter");
+        foreach my $parameter (keys %{$h->{parameters}}) {                          say("parameter: $parameter");
             $final_params{$parameter} = $uic->interpret_string_as($h->{parameters}{$parameter}, $parameters->{$parameter})
             if exists $parameters->{$parameter};
         }
