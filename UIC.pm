@@ -33,18 +33,18 @@ sub parse_data {
 # }, \&myHandler, 200);
 # returns a handler identifier.
 sub register_handler {
-    my ($uic, $command, $parameters, $callback, $priority) = @_;
+    my ($uic, $command, $parameters, $callback, $priority) = @_;                    say("registering $command");
     $priority ||= 0;
     
     # make sure callback is CODE and parameters is HASH.
-    return if !ref $callback   || ref $callback ne 'CODE';
-    return if !ref $parameters || ref $parameters ne 'HASH';
+    return if !ref $callback   || ref $callback ne 'CODE';                          say("got past CODE");
+    return if !ref $parameters || ref $parameters ne 'HASH';                        say("got past HASH");
     
     # make sure the types are valid.
     my @valid = qw(number string user server channel);
     foreach my $parameter (keys %$parameters) {
         return if !($parameter ~~ @valid);
-    }
+    }                                                                               say("got past valid");
     
     # store the handler.
     $uic->{handlers}{$command}{$priority} ||= [];
@@ -53,7 +53,7 @@ sub register_handler {
         callback   => $callback,
         parameters => $parameters,
         priority   => $priority
-    };
+    };                                                                              say("registered it");
     
     return defined $uic->{handlerID} ? ++$uic->{handlerID} : ($uic->{handlerID} = 0);
 }
