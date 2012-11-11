@@ -70,7 +70,7 @@ sub fire_handler {
     # call each handler.
     my $return = {};
     foreach my $priority (sort { $b <=> $a } keys %{$uic->{handlers}{$command}}) {
-    foreach my $h (@{$obj->{events}->{$event}->{$priority}}) {
+    foreach my $h (@{$uic->{handlers}{$command}{$priority}}) {
     
         # process parameter types.
         my %final_params;
