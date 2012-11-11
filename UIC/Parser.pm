@@ -205,7 +205,7 @@ sub parse_line {
 # this is not intended to be used directly
 # other than in UIC and UICd APIs.
 sub encode {
-    my $data = [@_];
+    my $data = {@_};
     my $uic  = "[ $$data{comand_name}";
 
     # if there are no parameters, we're pretty much done.
