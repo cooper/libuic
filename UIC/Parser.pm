@@ -258,7 +258,7 @@ sub decode_json {
 
     # ensure that the types are valid.
     return unless ref $json_data eq 'ARRAY';
-    return unless ref $json_data->[1] eq 'HASH';
+    return if ref $json_data->[1] && ref $json_data->[1] ne 'HASH';
     
     # create the hashref.
     return {
