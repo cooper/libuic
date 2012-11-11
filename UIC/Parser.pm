@@ -240,7 +240,10 @@ sub encode {
     
     # iterate through each parameter.
     foreach my $parameter (sort keys %{$data->{parameters}}) {
-        $uic .= "$parameter($$data{parameters}{$parameter}) ";
+        my $value =  $data->{parameters}{$parameter};
+        $value    =~ s/\(/\\\(/g;
+        $value    =~ s/\)/\\\)/g;
+        $uic     .=  "$parameter($value) ";
     }
     
     # close the message. we are done.
