@@ -195,4 +195,49 @@ sub parse_line {
     return \%final;
 }
 
+# encode Perl data into a UIC message.
+# UIC::Parser::encode(
+#     command_name => 'hello',
+#     parameters   => {
+#         someParameter => 'someValue'
+#     }
+# );
+# this is not intended to be used directly
+# other than in UIC and UICd APIs.
+sub encode {
+    my $data = \shift;
+    my $uic  = "[ $command";
+
+    # if there are no parameters, we're pretty much done.
+    if (!$data->{parameters} || !scalar keys %{$data->{parameters}}){
+        $uic .= ' ]';
+        return $uic;
+    }
+    
+    # otherwise, start the parameter list.
+    $uic .= q(: );
+    
+    # iterate through each parameter.
+    foreach my $parameter (keys %{$data->{parameters}}) {
+        $uic .= "$parameter($$data{parameters}{$parameter}) ";
+    }
+    
+    # close the message. we are done.
+    $uic .= ']';
+    return $uic;
+}
+
+use Data::Dumper;
+print Data::Dumper::Dumper encode(
+    'command_name' => 'hello',
+    parameters => {
+        someParameter => 'someValue',
+        someOtherParameter => 'someOtherValue'
+    }
+);
+
+print Data::Dumper::Dumper encode(
+    command_name => 'hi'
+);
+
 1
