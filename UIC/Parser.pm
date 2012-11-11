@@ -234,4 +234,23 @@ sub encode {
     return $uic;
 }
 
+##################
+### UJC / JSON ###
+##################
+
+# converts a JSON-parsed data object to an output similar to encode().
+sub decode_json {
+    my $json_data = shift;
+
+    # ensure that the types are valid.
+    return unless ref $json_data eq 'ARRAY';
+    return unless ref $json_data->[1] eq 'HASH';
+    
+    # create the hashref.
+    return {
+        command_name => $json_data->[0],
+        parameters   => $json_data->[1]
+    }
+}
+
 1
