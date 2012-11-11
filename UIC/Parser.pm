@@ -60,6 +60,8 @@ sub parse_line {
                 $@ = 'no command name specified';
                 return;
             }
+            
+            $final{command_name} = $current{command_name};
         
             # if there is a parameter name, we have a problem.
             if (defined $current{parameter_name}) {
