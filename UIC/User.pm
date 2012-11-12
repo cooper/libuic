@@ -11,9 +11,8 @@ use parent 'UIC::EventedObject';
 # create a new user.
 sub new {
     my ($class, %opt) = @_;
-    my $server = bless \%opt, $class;
-    return $server;
-
+    my $user = bless \%opt, $class;
+    return $user;
 }
 
 1

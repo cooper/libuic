@@ -17,6 +17,13 @@ use UIC::Parser;
 
 use Scalar::Util qw(looks_like_number blessed);
 
+###############
+### LOGGING ###
+###############
+
+sub log {
+}
+
 ######################
 ### HANDLING DATA ####
 ######################
@@ -41,7 +48,7 @@ sub parse_data {
 # }, \&myHandler, 200);
 # returns a handler identifier.
 sub register_handler {
-    my ($uic, $command, $parameters, $callback, $priority) = @_;
+    my ($uic, $command, $parameters, $callback, $priority, $package) = @_;
     $priority ||= 0;
     
     # make sure callback is CODE and parameters is HASH.
@@ -64,9 +71,11 @@ sub register_handler {
         callback   => $callback,
         parameters => $parameters,
         priority   => $priority,
-        package    => (caller)[0],
+        package    => $package || (caller)[0],
         id         => $id    
     };
+    
+    $uic->log("registered handler $id for '$command' command");
     
     return $id;
 }
