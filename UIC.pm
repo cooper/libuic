@@ -53,14 +53,16 @@ sub register_handler {
     $package  ||= (caller)[0];
     
     # make sure callback is CODE and parameters is HASH.
-    $@ = 'callback is not a CODE reference.'   and return if !ref $callback   || ref $callback   ne 'CODE';
-    $@ = 'parameters is not a HASH reference.' and return if !ref $parameters || ref $parameters ne 'HASH';
+    $uic->log('callback is not a CODE reference.')
+    and return if !ref $callback   || ref $callback   ne 'CODE';
+    $uic->log('parameters is not a HASH reference.')
+    and return if !ref $parameters || ref $parameters ne 'HASH';
     
     # make sure the types are valid.
     my @valid = qw(number bool string user server channel);
     foreach my $parameter (keys %$parameters) {
-        $@ = "invalid type '$$parameters{$parameter}'"
-        and return unless scalar grep { $parameters->{$parameter} } @valid;
+        $uic->log("invalid type '$$parameters{$parameter}'")
+        and return unless scalar grep { $_ eq $parameters->{$parameter} } @valid;
     }
     
     # generate an identifier.
