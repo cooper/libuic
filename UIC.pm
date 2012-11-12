@@ -50,15 +50,17 @@ sub parse_data {
 sub register_handler {
     my ($uic, $command, $parameters, $callback, $priority, $package) = @_;
     $priority ||= 0;
+    $package  ||= (caller)[0];
     
     # make sure callback is CODE and parameters is HASH.
-    return if !ref $callback   || ref $callback ne 'CODE';
-    return if !ref $parameters || ref $parameters ne 'HASH';
+    $@ = 'callback is not a CODE reference.'   and return if !ref $callback   || ref $callback   ne 'CODE';
+    $@ = 'parameters is not a HASH reference.' and return if !ref $parameters || ref $parameters ne 'HASH';
     
     # make sure the types are valid.
     my @valid = qw(number bool string user server channel);
     foreach my $parameter (keys %$parameters) {
-        return unless scalar grep { $parameters->{$parameter} } @valid;
+        $@ = "invalid type '$$parameters{$parameter}'"
+        and return unless scalar grep { $parameters->{$parameter} } @valid;
     }
     
     # generate an identifier.
@@ -71,11 +73,11 @@ sub register_handler {
         callback   => $callback,
         parameters => $parameters,
         priority   => $priority,
-        package    => $package || (caller)[0],
+        package    => $package,
         id         => $id    
     };
     
-    $uic->log("registered handler $id for '$command' command");
+    $uic->log("registered handler $id for '$command' command to package $package");
     
     return $id;
 }
