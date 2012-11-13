@@ -82,10 +82,12 @@ sub register_handler {
     }
     
     # make sure the types are valid.
-    my @valid = qw(number bool string user server channel);
-    foreach my $parameter (keys %$parameters) {
-        $uic->log("invalid type '$$parameters{$parameter}'")
-        and return unless scalar grep { $_ eq $parameters->{$parameter} } @valid;
+    if (ref $parameters) {
+        my @valid = qw(number bool string user server channel);
+        foreach my $parameter (keys %$parameters) {
+           $uic->log("invalid type '$$parameters{$parameter}'")
+           and return unless scalar grep { $_ eq $parameters->{$parameter} } @valid;
+        }
     }
     
     # generate an identifier.
