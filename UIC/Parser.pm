@@ -11,6 +11,8 @@ use feature 'switch';
 #
 # (bool)    inside_message:     true if we are in a message (within the brackets)
 # (bool)    message_done:       true if the message has been parsed fully (right bracket parsed)
+# (number)  message_id:         the numerical message identifier
+# (bool)    message_id_done:    true if the message ID is done (left bracket parsed)
 #
 # (string)  command_name:       the name of the message command
 # (bool)    command_done:       true if the command has been parsed fully (colon parsed)
@@ -56,7 +58,11 @@ sub parse_line {
         }
         
         # left bracket - starts a message
-        when ('[') { $current{inside_message} = 1 }
+        when ('[') {
+            $current{inside_message}  = 1;
+            $current{message_id_done} = 1;
+            $final{message_id} = $current{message_id} if defined $current{message_id};
+        }
         
         # right bracket - ends a message
         when (']') {
@@ -195,10 +201,20 @@ sub parse_line {
                 }
             }
             
-            # not inside of a message; illegal!
+            # outside of message.
             else {
+            
+                # if it's numerical, it must be a message identifier.
+                if ($char =~ m/\d/ && !$current{message_id_done}) {
+                    $current{message_id} ||= ''; # this will interpret 1 and 01 as the same.
+                    $current{message_id} .= $char;
+                    next CHAR;
+                }
+                
+                # other character not inside of a message; illegal!
                 $@ = "character '$char' is outside of message bounds";
                 return;
+                
             }
                 
             
