@@ -232,7 +232,7 @@ sub parse_line {
         }
     
         $final{parameters}{messageID} = $final{message_id};
-        return;
+
     }
     
     return \%final;
