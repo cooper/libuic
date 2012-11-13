@@ -90,7 +90,7 @@ sub register_handler {
 #     someOther     => 'hello!'
 # });
 sub fire_handler {
-    my ($uic, $command, $parameters) = @_;
+    my ($uic, $command, $parameters, $info_sub) = @_;
 
     # no handlers for this command.
     return unless $uic->{handlers}{$command};
@@ -113,6 +113,9 @@ sub fire_handler {
             command  => $command,
             priority => $priority
         );
+        
+        # call info sub.
+        $info_sub->(\%info);
         
         # call it.
         $h->{callback}(\%final_params, $return, \%info);
