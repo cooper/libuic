@@ -50,6 +50,7 @@ sub fire_return {
     my ($uic, $id, $parameters, $info) = @_;
     return unless $uic->{return_callback}{$id};
     $_->($parameters, $info) foreach @{$uic->{return_callback}{$id}};
+    delete $uic->{return_callback}{$id} if $uic->{return_callback}{$id};
 }
 
 #################################
