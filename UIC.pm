@@ -74,9 +74,12 @@ sub register_handler {
     
     # make sure callback is CODE and parameters is HASH.
     $uic->log('callback is not a CODE reference.')
-    and return if !ref $callback   || ref $callback   ne 'CODE';
-    $uic->log('parameters is not a HASH reference.')
-    and return if (!ref $parameters && $parameters ne 'all') || ref $parameters ne 'HASH';
+    and return if !ref $callback || ref $callback ne 'CODE';
+    
+    if ($parameters ne 'all') {
+        $uic->log('parameters is not a HASH reference.')
+        and return if !ref $callback || ref $parameters ne 'HASH';
+    }
     
     # make sure the types are valid.
     my @valid = qw(number bool string user server channel);
