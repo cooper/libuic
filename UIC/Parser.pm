@@ -290,8 +290,12 @@ sub decode_json {
     my $json_data = shift;
 
     # ensure that the types are valid.
-    return unless ref $json_data eq 'ARRAY';
-    return if ref $json_data->[1] && ref $json_data->[1] ne 'HASH';
+    $@ = "JSON object is not an array reference"
+    and return unless ref $json_data eq 'ARRAY';
+    $@ = "parameter object is not a HASH reference"
+    and return if ref $json_data->[1] ne 'HASH';
+    $@ = "message identifier is not numerical"
+    and return if defined $json_data->[2] && $json_data->[2] =~ m/^(\d*)$/;
     
     # create the hashref.
     return {
@@ -299,6 +303,7 @@ sub decode_json {
         parameters   => $json_data->[1],
         message_id   => defined $json_data->[2] ? $json_data->[2] : undef
     }
+    
 }
 
 1
