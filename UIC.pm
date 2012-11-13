@@ -33,6 +33,25 @@ sub parse_data {
     # blah blah, call handlers.
 }
 
+#######################
+### MESSAGE RETURNS ###
+#######################
+
+# store a callback for when return is received.
+sub register_return_handler {
+    my ($uic, $id, $callback) = @_;
+    return unless ref $callback eq 'CODE';  
+    $uic->{return_callback}{$id} ||= [];
+    push @{$uic->{return_callback}{$id}}, $callback;
+}
+
+# fire a return callback.
+sub fire_return {
+    my ($uic, $id, $parameters, $info) = @_;
+    return unless $uic->{return_callback}{$id};
+    $_->($parameters, $info) foreach @{$uic->{return_callback}{$id}};
+}
+
 #################################
 ### MANAGING COMMAND HANDLERS ###
 #################################
