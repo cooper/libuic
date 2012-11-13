@@ -222,6 +222,12 @@ sub parse_line {
     } 
     }
     
+    # it doesn't make sense for a return command to have a message identifier.
+    if ($final{command_name} eq 'return' && defined $final{message_id}) {
+        $@ = "it is illegal for 'return' command to have a message identifier";
+        return;
+    }
+    
     return \%final;
 }
 
