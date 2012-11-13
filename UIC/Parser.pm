@@ -243,7 +243,14 @@ sub parse_line {
 # other than in UIC and UICd APIs.
 sub encode {
     my $data = {@_};
-    my $uic  = "[ $$data{command_name}";
+    my $uic = q();
+    
+    # message identifier.
+    if ($data->{message_id}) {
+        $uic .= $data->{message_id}.q( );
+    }
+    
+    $uic .= "[ $$data{command_name}";
 
     # if there are no parameters, we're pretty much done.
     if (!$data->{parameters} || !scalar keys %{$data->{parameters}}){
@@ -272,6 +279,7 @@ sub encode {
 ##################
 
 # converts a JSON-parsed data object to an output similar to encode().
+# [command, parameters, identifier ]
 sub decode_json {
     my $json_data = shift;
 
@@ -282,7 +290,8 @@ sub decode_json {
     # create the hashref.
     return {
         command_name => $json_data->[0],
-        parameters   => $json_data->[1]
+        parameters   => $json_data->[1],
+        message_id   => defined $json_data->[2] ? $json_data->[2] : undef
     }
 }
 
