@@ -295,7 +295,7 @@ sub decode_json {
     $@ = "parameter object is not a HASH reference"
     and return if ref $json_data->[1] ne 'HASH';
     $@ = "message identifier is not numerical"
-    and return if defined $json_data->[2] && $json_data->[2] =~ m/^(\d*)$/;
+    and return if defined $json_data->[2] && $json_data->[2] !~ m/^(\d*)$/;
     
     # create the hashref.
     return {
