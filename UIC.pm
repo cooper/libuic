@@ -39,17 +39,33 @@ sub parse_data {
 
 # store a callback for when return is received.
 sub register_return_handler {
-    my ($uic, $id, $callback) = @_;
-    return unless ref $callback eq 'CODE';  
+    my ($uic, $id, $callback, $parameters) = @_;
+    return unless ref $callback eq 'CODE';
+    return if defined $parameters && ref $parameters ne 'HASH';
     $uic->{return_callback}{$id} ||= [];
-    push @{$uic->{return_callback}{$id}}, $callback;
+    push @{$uic->{return_callback}{$id}}, [$callback, $parameters];
 }
 
 # fire a return callback.
 sub fire_return {
     my ($uic, $id, $parameters, $info) = @_;
     return unless $uic->{return_callback}{$id};
-    $_->($parameters, $info) foreach @{$uic->{return_callback}{$id}};
+    
+    foreach my $r (@{$uic->{return_callback}{$id}}) {
+    
+        # convert types if necessary.
+        if ($r->[1]) {
+            foreach my $parameter (keys %{$r->[1]}) {
+                $parameters->{$parameter} =
+                $uic->interpret_string_as($r->[1]{$parameter}, $parameters->{$parameter})
+                if exists $parameters->{$parameter};
+            }
+        }
+   
+        # call it.
+        $r->[0]->($parameters, $info);
+        
+    }
     delete $uic->{return_callback}{$id} if $uic->{return_callback}{$id};
 }
 
