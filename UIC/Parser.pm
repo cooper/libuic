@@ -222,9 +222,16 @@ sub parse_line {
     } 
     }
     
-    # it doesn't make sense for a return command to have a message identifier.
+    # if a return command has a message identifier, it becomes the messageID parameter.
     if ($final{command_name} eq 'return' && defined $final{message_id}) {
-        $@ = "it is illegal for 'return' command to have a message identifier";
+        
+        # however, it only makes sense if a messageID parameter is equal.
+        if (defined $final{parameters}{messageID} && $final{parameters}{messageID} ne $final{message_id}) {
+            $@ = "in return, message identifier and messageID parameter do not match";
+            return;
+        }
+    
+        $final{parameters}{messageID} = $final{message_id};
         return;
     }
     
