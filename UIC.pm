@@ -119,11 +119,21 @@ sub fire_handler {
     foreach my $priority (sort { $b <=> $a } keys %{$uic->{handlers}{$command}}) {
     foreach my $h (@{$uic->{handlers}{$command}{$priority}}) {
     
-        # process parameter types.
+
         my %final_params;
-        foreach my $parameter (keys %{$h->{parameters}}) {
-            $final_params{$parameter} = $uic->interpret_string_as($h->{parameters}{$parameter}, $parameters->{$parameter})
-            if exists $parameters->{$parameter};
+        
+        # handler accepts all parameters.
+        if ($h->{parameters} eq 'all') {
+            %final_params = %$parameters;
+        }
+        
+        # process parameters.
+        else {
+            foreach my $parameter (keys %{$h->{parameters}}) {
+                $final_params{$parameter} =
+               $uic->interpret_string_as($h->{parameters}{$parameter}, $parameters->{$parameter})
+             if exists $parameters->{$parameter};
+            }
         }
         
         # create information object.
