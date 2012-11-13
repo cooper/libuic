@@ -246,7 +246,7 @@ sub encode {
     my $uic = q();
     
     # message identifier.
-    if ($data->{message_id}) {
+    if (defined $data->{message_id}) {
         $uic .= $data->{message_id}.q( );
     }
     
