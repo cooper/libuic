@@ -243,7 +243,7 @@ sub parse_line {
     }
     
     # we're inside a message? that's not at all valid.
-    if ($current{in_message}) {
+    if ($current{inside_message}) {
         $@ = 'data terminated before end of message';
         return;
     }
