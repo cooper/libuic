@@ -287,4 +287,11 @@ sub lookup_server_by_id {
     return $uic->{servers}{$id};
 }
 
+#####################
+### MISCELLANEOUS ###
+#####################
+
+sub TRUE  { '$_UIC_TRUE_$'  }
+sub FALSE { '$_UIC_FALSE_$' }
+
 1
