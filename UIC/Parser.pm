@@ -59,6 +59,13 @@ sub parse_line {
         
         # left bracket - starts a message
         when ('[') {
+        
+            # we can't start a message if we've already finished one.
+            if ($current{message_done}) {
+                $@ = 'attempted to start a second message';
+                return;
+            }
+        
             $current{inside_message}  = 1;
             $current{message_id_done} = 1;
             $final{message_id} = $current{message_id} if defined $current{message_id};
@@ -227,12 +234,18 @@ sub parse_line {
         
         # however, it only makes sense if a messageID parameter is equal.
         if (defined $final{parameters}{messageID} && $final{parameters}{messageID} ne $final{message_id}) {
-            $@ = "in return, message identifier and messageID parameter do not match";
+            $@ = 'in return, message identifier and messageID parameter do not match';
             return;
         }
     
         $final{parameters}{messageID} = $final{message_id};
 
+    }
+    
+    # we're inside a message? that's not at all valid.
+    if ($current{in_message}) {
+        $@ = 'data terminated before end of message';
+        return;
     }
     
     return \%final;
