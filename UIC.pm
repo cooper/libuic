@@ -291,7 +291,7 @@ sub lookup_server_by_id {
 ### MISCELLANEOUS ###
 #####################
 
-sub TRUE  { '$_UIC_TRUE_$'  }
-sub FALSE { '$_UIC_FALSE_$' }
+sub TRUE  () { '$_UIC_TRUE_$'  }
+sub FALSE () { '$_UIC_FALSE_$' }
 
 1

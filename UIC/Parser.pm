@@ -290,6 +290,18 @@ sub encode {
     # iterate through each parameter.
     foreach my $parameter (sort keys %{$data->{parameters}}) {
         my $value =  $data->{parameters}{$parameter};
+        
+        # boolean: true
+        if ($value eq UIC::TRUE) {
+            $uic .= "$parameter! ";
+            next;
+        }
+        
+        # boolean: false
+        if ($value eq UIC::FALSE) {
+            next;
+        }
+        
         $value    =~ s/\(/\\\(/g;
         $value    =~ s/\)/\\\)/g;
         $uic     .=  "$parameter($value) ";
