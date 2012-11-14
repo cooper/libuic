@@ -292,13 +292,13 @@ sub encode {
         my $value =  $data->{parameters}{$parameter};
         
         # boolean: true
-        if ($value eq +UIC::TRUE) {
+        if ($value eq UIC::TRUE()) {
             $uic .= "$parameter! ";
             next;
         }
         
         # boolean: false
-        if ($value eq +UIC::FALSE) {
+        if ($value eq UIC::FALSE()) {
             next;
         }
         
