@@ -317,7 +317,7 @@ sub make_uic_type {
         
         # final value.
         push @final, delete $current{value} if defined $current{value};
-        print "final: @final\n";
+        print "final: @final\n"; 
         return UIC::Type::Array->new(@final);
     }
     
