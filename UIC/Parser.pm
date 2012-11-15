@@ -278,7 +278,7 @@ sub parse_line {
 # obviously, boolean types are the single exception.
 # sets $@ and returns undef if a parse error occurs.
 sub make_uic_type {
-    my ($type, $value) = @_;
+    my ($type, $value) = @_;print "[$type]: $value\n";
     given ($type) {
     
     # string
