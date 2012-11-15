@@ -148,7 +148,7 @@ sub parse_line {
                         
                         # end the value.
                         my $result = $final{parameters}{$current{parameter_name}} =
-                        make_uic_type($current{parameter_type}, $current{parameter_value};
+                        make_uic_type($current{parameter_type}, $current{parameter_value});
                         
                         # parameter value parse error.
                         if (!defined $result) {
