@@ -21,11 +21,19 @@ use feature 'switch';
 # (string)  parameter_name:     the name of the parameter being parsed
 # (string)  parameter_value:    the value of the parameter being parsed (inside parentheses)
 # (bool)    parameter_escape:   true if the last character was an escape character
+# (string)  parameter_type:     the character representing the type of the current parameter
 
 
 # %final
 # (string)  command_name:       the name of the message command
 # (hash)    parameters:         hash of name:value parameters
+
+# Returned parameter types:
+#   array                                - UIC::Type::Array
+#   object (user, server, channel, etc.) - UIC::Type::Object
+#   string                               - UIC::Type::String
+#   number                               - UIC::Type::Number
+#   boolean                              - UIC::Type::Boolean
 
 sub parse_line {
     my ($line, %current, %final) = shift;
@@ -38,20 +46,15 @@ sub parse_line {
         
             # if we are inside a parameter value, the space is accounted for.
             if ($current{inside_parameter}) {
-            
-                # parameter names must be alphanumeric/_.
-                if ($char !~ m/\w/) {
-                    # illegal error. disconnect. could also be JSON.
-                    $@ = "character '$char' is illegal in parameter name";
-                    return;
-                }
-            
+
                 # if there is no value, set it to an empty string.
                 $current{parameter_value} = q()
                 if !defined $current{parameter_value};
                 
                 $current{parameter_value} .= $char;
             }
+            
+            # if we are parsing the command name, ...spaces not allowed XXX
             
             # otherwise, we do not care about this space at all.
             
@@ -105,17 +108,26 @@ sub parse_line {
             # we are inside a message
             if ($current{inside_message}) {
             
-                # we've received the command. it could be a parameter name.
+                # we've received the command. it could be a parameter name, value, or type.
                 if ($current{command_done}) {
                 
                     # backslash - escape character.
-                    if ($char eq '\\' && !$current{parameter_escape}) {
+                    if ($char eq '\\' && !$current{parameter_escape} && $current{inside_parameter}) {
                         $current{parameter_escape} = 1;
                         next CHAR;
                     }
                     
+                    # if we are not inside of the parameter value and it is one of these symbols,
+                    # it could be a type indicator (unless we've received part of parameter name already.)
+                    if ($char =~ m/[\#\@\$]/ && !$current{inside_parameter} && !defined $current{parameter_name}) {
+                        $current{parameter_type} = $char;
+                    }
+                    
                     # left parenthesis - starts a parameter's value.
                     if ($char eq '(' && !$current{parameter_escape}) {
+                        
+                        # if there is no type, set it to '' (string).
+                        $current{parameter_type} = '' if !defined $current{parameter_type};
                         
                         # if there is no parameter, something is wrong. ex: [command: (value)]
                         if (!defined $current{parameter_name}) {
@@ -135,10 +147,19 @@ sub parse_line {
                         # just saying. no reason to check if parameter_value has a length.
                         
                         # end the value.
-                        $final{parameters}{$current{parameter_name}} = $current{parameter_value}; 
+                        my $result = $final{parameters}{$current{parameter_name}} =
+                        make_uic_type($current{parameter_type}, $current{parameter_value};
+                        
+                        # parameter value parse error.
+                        if (!defined $result) {
+                            $@ = "unable to parse value of '$current{parameter_name}' parameter: $@";
+                            return;
+                        }
+                        
                         delete $current{inside_parameter};
                         delete $current{parameter_name};
                         delete $current{parameter_value};
+                        delete $current{parameter_type};
                         
                     }
                     
@@ -148,6 +169,8 @@ sub parse_line {
                         # set value to a true value (1).
                         $final{parameters}{$current{parameter_name}} = 1;
                         delete $current{parameter_name};
+                        
+                        # XXX make sure parameter name is not empty.
                         
                     }
                     
@@ -249,6 +272,60 @@ sub parse_line {
     }
     
     return \%final;
+}
+
+# make a UIC::Type object for the type indicator and parameter value specified.
+# obviously, boolean types are the single exception.
+# sets $@ and returns undef if a parse error occurs.
+sub make_uic_type {
+    my ($type, $value) = @_;
+    given ($type) {
+    
+    # string
+    when ('' ) { return UIC::Type::String->new($value) }
+    
+    # number
+    when ('#') { return UIC::Type::Number->new($value) }
+    
+    # array
+    when ('@') {
+    
+        # parse element separation.
+        my (%current, @final);
+        foreach my $char (split //, $value) {
+        given ($char) {
+        
+            # character escape.
+            if ($char eq '\\' && !$current{escape}) {
+                $current{escape} = 1;
+            }
+            
+            # comma separator.
+            when (',' && !$current{escape}) {
+                push @final, $current{value} if defined $current{value};
+                delete $current{value};
+            }
+            
+            # other character.
+            default {
+                $current{value}  = '' unless defined $current{value};
+                $current{value} .= $char;
+            }
+        
+        }
+        }
+        
+        # final value.
+        push @final, delete $current{value} if defined $current{value};
+        print "final: @final\n";
+        return UIC::Type::Array->new(@final);
+    }
+    
+    # object
+    when ('$') { }
+        
+    
+    }
 }
 
 # encode Perl data into a UIC message.
