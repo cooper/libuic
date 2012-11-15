@@ -294,12 +294,7 @@ sub make_uic_type {
         my (%current, @final);
         foreach my $char (split //, $value) {
         given ($char) {
-        
-            # character escape.
-            if ($char eq '\\' && !$current{escape}) {
-                $current{escape} = 1;
-            }
-            
+                    
             # comma separator.
             when (',' && !$current{escape}) {
                 push @final, $current{value} if defined $current{value};
@@ -308,6 +303,12 @@ sub make_uic_type {
             
             # other character.
             default {
+            
+                # character escape.
+                if ($char eq '\\' && !$current{escape}) {
+                    $current{escape} = 1;
+                }
+            
                 $current{value}  = '' unless defined $current{value};
                 $current{value} .= $char;
             }
