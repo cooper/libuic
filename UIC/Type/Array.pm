@@ -9,4 +9,10 @@ sub new {
     return bless {}, shift;
 }
 
+sub is_string  { 0 }
+sub is_number  { 0 }
+sub is_array   { 1 }
+sub is_object  { 0 }
+sub is_boolean { 0 }
+
 1
