@@ -292,11 +292,11 @@ sub make_uic_type {
     
         # parse element separation.
         my (%current, @final);
-        foreach my $char (split //, $value) {
-        given ($char) {
+        foreach my $char (split //, $value) { given ($char) {
                     
             # comma separator.
-            when (',' && !$current{escape}) {
+            when (',') {
+                next if $current{escape};
                 push @final, $current{value} if defined $current{value};
                 delete $current{value};
             }
@@ -309,12 +309,16 @@ sub make_uic_type {
                     $current{escape} = 1;
                 }
             
-                $current{value}  = '' unless defined $current{value};
-                $current{value} .= $char;
+                # part of value.
+                else {
+                    $current{value}  = '' unless defined $current{value};
+                    $current{value} .= $char;
+                    
+                    delete $current{escape};
+                }
+
             }
-        
-        }
-        }
+        }}
         
         # final value.
         push @final, delete $current{value} if defined $current{value};
