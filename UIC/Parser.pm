@@ -278,7 +278,7 @@ sub parse_line {
 # obviously, boolean types are the single exception.
 # sets $@ and returns undef if a parse error occurs.
 sub make_uic_type {
-    my ($type, $value) = @_;print "[$type]: $value\n";
+    my ($type, $value) = @_;
     given ($type) {
     
     # string
@@ -322,15 +322,74 @@ sub make_uic_type {
         
         # final value.
         push @final, delete $current{value} if defined $current{value};
-        print "final: @final\n"; 
+
         return UIC::Type::Array->new(@final);
     }
     
     # object
-    when ('$') { }
+    when ('$') {
         
-    
+        # parse type and identifier.
+        my ($type, $identifier, %current) = ('', '');
+        foreach my $char (split //, $value) { given ($char) {
+        
+            if ($char eq '.') {
+            
+                # we've already processed a separator.
+                if ($current{got_separator}) {
+                    $@ = 'object type has multiple separators';
+                    return;
+                }
+                
+                # type is empty.
+                if ($type eq '') {
+                    $@ = 'object has no type';
+                    return;
+                }
+                
+                $current{got_separator} = 1;
+            
+            }
+            
+            # other character.
+            else {
+            
+                # part of the identifier.
+                if ($current{got_separator}) {
+                
+                    # identifiers must be numeric.
+                    if ($char !~ m/\d/) {
+                        $@ = "character '$char' in object identifier is not numeric";
+                        return;
+                    }
+                
+                    $identifier .= $char;
+                }
+                
+                # part of the type.
+                else {
+                
+                    # types must be alphanumeric/_.
+                    if ($char !~ m/\w/) {
+                        $@ = "character '$char' in object type is not alphanumeric";
+                        return;
+                    }
+                    
+                    $type .= $char;
+                }
+                
+            }
+        
+        }}
+        
+        return UIC::Object->new($type, $identifier);
+        
     }
+        
+    }
+    
+    $@ = "unknown type";
+    return;
 }
 
 # encode Perl data into a UIC message.
