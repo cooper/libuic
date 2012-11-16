@@ -4,9 +4,17 @@ package UIC::Type::Number;
 use warnings;
 use strict;
 use utf8;
+use overload fallback => 1, '0+' => \&number;
 
 sub new {
-    return bless {}, shift;
+    my ($class, $number) = @_;
+    return bless {
+        number => $number
+    }, $class;
+}
+
+sub number {
+    shift->{number};
 }
 
 sub is_string  { 0 }
