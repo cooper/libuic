@@ -7,7 +7,8 @@ use utf8;
 use overload
     fallback => 1,
     '@{}'=> sub { shift->{elements} },
-    '""' => sub { join ',', shift->array };
+    '""' => sub { '('.join ', ', shift->array.')' },
+    bool => sub { !!self->array };
 
 sub new {
     my ($class, @elements) = @_;

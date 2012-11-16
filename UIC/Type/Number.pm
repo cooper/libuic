@@ -4,7 +4,11 @@ package UIC::Type::Number;
 use warnings;
 use strict;
 use utf8;
-use overload fallback => 1, '0+' => \&number;
+use overload
+    fallback => 1,
+    '0+' => \&number,
+    '""' => \&number,
+    bool => sub { !!shift->{number} };
 
 sub new {
     my ($class, $number) = @_;

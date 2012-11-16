@@ -4,7 +4,10 @@ package UIC::Type::String;
 use warnings;
 use strict;
 use utf8;
-use overload fallback => 1, '""' => \&string;
+use overload fallback => 1,
+    '""' => \&string,
+    '0+' => sub { 0 },
+    bool => sub { !!shift->string };
 
 sub new {
     my ($class, $string) = @_;
