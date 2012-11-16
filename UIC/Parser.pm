@@ -52,12 +52,11 @@ sub parse_line {
                 if !defined $current{parameter_value};
                 
                 $current{parameter_value} .= $char;
-                continue;
             }
             
             # if we are parsing the command name, spaces are not allowed.
             # this is checked at the end of the parser.
-                        
+            continue;    
             # otherwise, we do not care about this space at all.
             
         }
