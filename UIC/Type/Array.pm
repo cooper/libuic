@@ -8,7 +8,7 @@ use overload
     fallback => 1,
     '@{}'=> sub { shift->{elements} },
     '""' => sub { '('.(join ', ', shift->array).')' },
-    bool => sub { !!self->array };
+    bool => sub { !!shift->array };
 
 sub new {
     my ($class, @elements) = @_;
