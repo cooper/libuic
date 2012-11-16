@@ -54,8 +54,9 @@ sub parse_line {
                 $current{parameter_value} .= $char;
             }
             
-            # if we are parsing the command name, ...spaces not allowed XXX
-            
+            # if we are parsing the command name, spaces are not allowed.
+            # this is checked at the end of the parser.
+                        
             # otherwise, we do not care about this space at all.
             
         }
@@ -253,6 +254,12 @@ sub parse_line {
     } 
     }
     
+    # we're inside a message? that's not at all valid.
+    if ($current{inside_message}) {
+        $@ = 'data terminated before end of message';
+        return;
+    }
+    
     # if a return command has a message identifier, it becomes the messageID parameter.
     if ($final{command_name} eq 'return' && defined $final{message_id}) {
         
@@ -266,9 +273,9 @@ sub parse_line {
 
     }
     
-    # we're inside a message? that's not at all valid.
-    if ($current{inside_message}) {
-        $@ = 'data terminated before end of message';
+    # it is not valid for a command name to contain whitespace.
+    if ($final{command_name} =~ m/\s/) {
+        $@ = "command name '$final{command_name}' is not alphanumeric.";
         return;
     }
     
