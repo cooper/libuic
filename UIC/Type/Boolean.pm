@@ -1,4 +1,10 @@
 # Copyright (c) 2012, Mitchell Cooper
+# UIC::Type::Boolean: represents a boolean value in UIC.
+#
+# in numerical context, returns 1 for a true value and 0 for a false value
+# in string context, returns 'true' or 'false'
+# in boolean context, returns the boolean value
+# 
 package UIC::Type::Boolean;
 
 use warnings;

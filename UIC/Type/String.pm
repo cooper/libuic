@@ -1,4 +1,10 @@
 # Copyright (c) 2012, Mitchell Cooper
+# UIC::Type::String: represents a string value in UIC.
+#
+# in numerical context, returns 0
+# in string context, returns the string value
+# in boolean context, returns a false value for '' and '0'; true for anything else
+# 
 package UIC::Type::String;
 
 use warnings;

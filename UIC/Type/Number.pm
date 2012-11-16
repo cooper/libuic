@@ -1,4 +1,10 @@
 # Copyright (c) 2012, Mitchell Cooper
+# UIC::Type::Number: represents a numerical value in UIC.
+#
+# in numerical context, returns the numerical value
+# in string context, returns the numerical value
+# in boolean context, returns a false value for 0; true for anything else
+# 
 package UIC::Type::Number;
 
 use warnings;
