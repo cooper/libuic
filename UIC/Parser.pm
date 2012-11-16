@@ -121,6 +121,7 @@ sub parse_line {
                     # it could be a type indicator (unless we've received part of parameter name already.)
                     if ($char =~ m/[\#\@\$]/ && !$current{inside_parameter} && !defined $current{parameter_name}) {
                         $current{parameter_type} = $char;
+                        next CHAR;
                     }
                     
                     # left parenthesis - starts a parameter's value.
