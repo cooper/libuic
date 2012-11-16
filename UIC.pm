@@ -42,10 +42,30 @@ sub parse_data {
 sub process_parameters {
     my ($uic, $parameters) = @_;
     foreach my $param (keys %$parameters) {
-        next unless ref $parameters->{$param};
-        next unless $parameters->{$param}->isa('UIC::Type::Object');
-        print "obj: ".$parameters->{$param}."\n";
+        my $val = $parameters->{$param};
+        next unless ref $val;
+        next unless $val->isa('UIC::Type::Object');
+        $parameters->{$param} = $uic->fetch_object($val->type, $val->id);
     }
+}
+
+####################
+### OBJECT TYPES ###
+####################
+
+# register an object type handler.
+# object type handlers convert instances of UIC::Type::Object into a real Perl object.
+sub register_object_type_handler {
+    my ($uic, $type, $callback) = @_;
+    return if !ref $callback || ref $callback ne 'CODE';
+    $uic->{type_callback}{$type} = $callback;
+}
+
+# returns an object of $type with ID $id.
+sub fetch_object {
+    my ($uic, $type, $id) = @_;
+    return unless $uic->{type_callback}{$type};
+    return $uic->{type_callback}{$type}($id);
 }
 
 #######################
