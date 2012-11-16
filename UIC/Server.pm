@@ -1,6 +1,6 @@
 # Copyright (c) 2012, Mitchell Cooper
 # UIC::Server: represents a server on UIC.
-# This class is typically subclasses a server or client.
+# This class is typically subclassed by a server or client.
 package UIC::Server;
 
 use warnings;

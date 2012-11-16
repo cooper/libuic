@@ -59,6 +59,7 @@ sub register_object_type_handler {
     my ($uic, $type, $callback) = @_;
     return if !ref $callback || ref $callback ne 'CODE';
     $uic->{type_callback}{$type} = $callback;
+    $uic->log("registered object type '$type'");
 }
 
 # returns an object of $type with ID $id.
