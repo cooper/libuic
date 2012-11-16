@@ -171,7 +171,7 @@ sub parse_line {
                     elsif ($char eq '!' && !$current{parameter_escape} && !$current{inside_parameter}) {
                         
                         # set value to a true value (1).
-                        $final{parameters}{$current{parameter_name}} = 1;
+                        $final{parameters}{$current{parameter_name}} = UIC::Type::Boolean->new(1);
                         delete $current{parameter_name};
                         
                         # make sure parameter name is not empty. ex: [command: !]
@@ -486,6 +486,8 @@ sub decode_json {
     and return if ref $json_data->[1] ne 'HASH';
     $@ = "message identifier is not numerical"
     and return if defined $json_data->[2] && $json_data->[2] !~ m/^(\d*)$/;
+    
+    # XXX: does not care about strict types. does not convert to UIC::Types.
     
     # create the hashref.
     return {
