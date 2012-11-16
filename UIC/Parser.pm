@@ -133,9 +133,11 @@ sub parse_line {
                         
                         # if there is no parameter, something is wrong. ex: [command: (value)]
                         if (!defined $current{parameter_name}) {
+                        
                             # illegal error. disconnect.
                             $@ = 'a parameter has no name';
                             return;
+                            
                         }
                         
                         # start the value.
@@ -172,7 +174,14 @@ sub parse_line {
                         $final{parameters}{$current{parameter_name}} = 1;
                         delete $current{parameter_name};
                         
-                        # XXX make sure parameter name is not empty.
+                        # make sure parameter name is not empty. ex: [command: !]
+                        if (!defined $current{parameter_name}) {
+                        
+                            # illegal error. disconnect.
+                            $@ = 'a boolean parameter has no name';
+                            return;
+                            
+                        }
                         
                     }
                     
@@ -365,7 +374,7 @@ sub make_uic_type {
                 # part of the identifier.
                 if ($current{got_separator}) {
                 
-                    # identifiers must be numeric.
+                    # identifiers must be numeric. XXX: what about scientific notation?
                     if ($char !~ m/\d/) {
                         $@ = "character '$char' in object identifier is not numeric";
                         return;
