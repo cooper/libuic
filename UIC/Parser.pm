@@ -40,7 +40,27 @@ sub parse_line {
     
     CHAR: foreach my $char (split //, $line) {
     given ($char) {
+        
+        # space. we handle this here for simplicity, since just about everything trims spaces out.
+        when (' ') {
+        
+            # if we are inside a parameter value, the space is accounted for.
+            if ($current{inside_parameter}) {
 
+                # if there is no value, set it to an empty string.
+                $current{parameter_value} = q()
+                if !defined $current{parameter_value};
+                
+                $current{parameter_value} .= $char;
+            }
+            
+            # if we are parsing the command name, ...spaces not allowed XXX
+            
+            
+            # otherwise, we do not care about this space at all.
+            
+        }
+        
         # left bracket - starts a message
         when ('[') {
         
@@ -198,18 +218,6 @@ sub parse_line {
                     
                     # command names must be alphanumeric/_.
                     if ($char !~ m/\w/) {
-                    
-                        # if it's a space, we just have to make sure it's not in the middle.
-                        if ($char =~ m/\s/) {
-                            next CHAR if !defined $current{command_name} ||
-                                         !length $current{command_name};
-                        
-                            # if the command name has length, we will just assume space terminates it.
-                            $current{command_done} = 1;
-                            next CHAR;
-                            
-                        }
-                    
                         # illegal error. disconnect. could also be JSON.
                         $@ = "character '$char' is illegal in command name";
                         return;
@@ -246,12 +254,6 @@ sub parse_line {
     } 
     }
     
-    # we're inside a message? that's not at all valid.
-    if ($current{inside_message}) {
-        $@ = 'data terminated before end of message';
-        return;
-    }
-    
     # if a return command has a message identifier, it becomes the messageID parameter.
     if ($final{command_name} eq 'return' && defined $final{message_id}) {
         
@@ -263,6 +265,12 @@ sub parse_line {
     
         $final{parameters}{messageID} = $final{message_id};
 
+    }
+    
+    # we're inside a message? that's not at all valid.
+    if ($current{inside_message}) {
+        $@ = 'data terminated before end of message';
+        return;
     }
     
     return \%final;
