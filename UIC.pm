@@ -43,7 +43,7 @@ sub process_parameters {
     my ($uic, $parameters) = @_;
     foreach my $param (keys %$parameters) {
         next unless ref $parameters->{$param};
-        next unless $parameters->{$param}->isa('UIC::Object');
+        next unless $parameters->{$param}->isa('UIC::Type::Object');
         print "obj: ".$parameters->{$param}."\n";
     }
 }

@@ -382,7 +382,7 @@ sub make_uic_type {
         
         }}
         
-        return UIC::Object->new($type, $identifier);
+        return UIC::Type::Object->new($type, $identifier);
         
     }
         
