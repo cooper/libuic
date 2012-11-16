@@ -182,6 +182,12 @@ sub parse_line {
                     
                         my $key = $current{inside_parameter} ? 'parameter_value' : 'parameter_name';
                         
+                        # if this is a parameter name, make sure it is alphanumeric/_.
+                        if (!$current{inside_parameter} && $char !~ m/\w/) {
+                            $@ = "character '$char' is illegal in parameter name";
+                            return;
+                        }
+                        
                         # if the parameter name or value doesn't exist, create empty string.
                         $current{$key} = q()
                         if !defined $current{$key};
