@@ -202,7 +202,7 @@ sub parse_line {
                         # if it's a space, we just have to make sure it's not in the middle.
                         if ($char eq ' ') {
                             next CHAR if !defined $current{command_name} ||
-                                         !length $current{command_name});
+                                         !length $current{command_name};
                         }
                     
                         # illegal error. disconnect. could also be JSON.
