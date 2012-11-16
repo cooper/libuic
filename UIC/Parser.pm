@@ -206,6 +206,7 @@ sub parse_line {
                         
                             # if the command name has length, we will just assume space terminates it.
                             $current{command_done} = 1;
+                            next CHAR;
                             
                         }
                     
