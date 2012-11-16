@@ -6,7 +6,7 @@ use strict;
 use utf8;
 use overload
     fallback => 1,
-    '@{}'=> sub { shift->{elements} }
+    '@{}'=> sub { shift->{elements} },
     '""' => sub { join ',', shift->array };
 
 sub new {
