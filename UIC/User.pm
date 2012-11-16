@@ -10,8 +10,9 @@ use parent 'UIC::EventedObject';
 
 # create a new user.
 sub new {
-    my ($class, %opt) = @_;
-    my $user = bless \%opt, $class;
+    my ($class, %opts) = @_;
+    my $uic  = $opts{uic} || $UIC::main_uic;
+    my $user = bless \%opts, $class;
     return $user;
 }
 

@@ -10,9 +10,18 @@ use parent 'UIC::EventedObject';
 
 # create a new server.
 sub new {
-    my ($class, %opt) = @_;
-    my $server = bless \%opt, $class;
-    return $server;
+    my ($class, %opts) = @_;
+    my $uic = $opts{uic} || $UIC::main_uic;
+    
+    # make sure all required options are present.
+    foreach my $what (qw|name network_name id description|) {
+        next if exists $opts{$what};
+        $opts{name} ||= 'unknown';
+        $uic->log("server '$opts{name}' does not have '$what' option.");
+        return;
+    }
+    
+    return bless \%opts, $class;
 }
 
 1

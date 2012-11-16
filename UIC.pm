@@ -22,6 +22,17 @@ use UIC::Type::Object;
 
 use Scalar::Util qw(looks_like_number blessed);
 
+# main UIC object is used especially in UICd, which only has a single UIC object.
+# however, software can have multiple UIC objects by supplying a 'uic' option to the
+# constructors of UIC::Server, UIC::Channel, and UIC::User.
+our $main_uic;
+
+sub new {
+    my $uic = shift->SUPER::new(@_);
+    $main_uic = $uic unless $main_uic;
+    return $uic;
+}
+
 ###############
 ### LOGGING ###
 ###############
