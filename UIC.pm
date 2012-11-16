@@ -58,11 +58,43 @@ sub process_parameters {
         next unless $val->isa('UIC::Type::Object');
         $parameters->{$param} = $uic->fetch_object($val->type, $val->id);
     }
+    return $parameters;
 }
 
-# converts objects, arrays, etc. to UIC values for sending.
+# converts objects, arrays, etc. to UIC::Type values for sending.
 sub prepare_parameters_for_sending {
     my ($uic, $parameters) = @_;
+    
+    foreach my $param (keys %$parameters) {
+        my $val = $parameters->{$param};
+        
+        # if it's blessed and has methods 'uic_id' and 'uic_type', it's an object.
+        if (blessed $val && $val->can('uic_id') && $val->can('uic_type')) {
+            $parameters->{$param} = UIC::Object->new($val->uic_type, $val->uic_id);
+            next;
+        }
+        
+        # otherwise...
+        # if it's blessed, we will assume it's already prepared and an instance of UIC::Type.
+        # using UIC::Type in a public send method forces a specific type. in particular,
+        # anything that is not a reference (including plain numbers) will be interpreted as
+        # strings by this method. numbers must always be UIC::Type::Number in advance.
+        next if blessed $val;
+        
+        # if it's not a reference, just assume it is a string (even if it's not a string)
+        if (!ref $val) {
+            $parameters->{$param} = UIC::Type::String->new($val);
+            next;
+        }
+        
+        # if it's an array reference, it's obviously an array.
+        if (ref $val eq 'ARRAY') {
+            $parameters->{$param} = UIC::Type::Array->new(@$val);
+            next;
+        }
+        
+    }
+    return $parameters;
 }
 
 ####################
