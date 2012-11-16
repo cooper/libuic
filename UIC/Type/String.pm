@@ -4,9 +4,17 @@ package UIC::Type::String;
 use warnings;
 use strict;
 use utf8;
+use overload fallback => 1, '""' => \&string;
 
 sub new {
-    return bless {}, shift;
+    my ($class, $string) = @_;
+    return bless {
+        string => $string
+    }, $class;
+}
+
+sub string {
+    shift->{string};
 }
 
 sub is_string  { 1 }
