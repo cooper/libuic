@@ -412,14 +412,13 @@ sub make_uic_type {
 # encode Perl data into a UIC message.
 #
 # not intended to convert IDs to objects, numbers to bools, etc.
-# simply takes a string and magically turns it into something it
-# already is. no conversion is done at all. this encodes Perl
-# data, and does absolutely nothing else.
+# simply takes UIC::Type parameters and magically turns them into
+# a UIC message.
 #
 # UIC::Parser::encode(
 #     command_name => 'hello',
 #     parameters   => {
-#         someParameter => 'someValue'
+#         someParameter => UIC::Type::String->new('someValue')
 #     }
 # );
 #
@@ -448,21 +447,42 @@ sub encode {
     # iterate through each parameter.
     foreach my $parameter (sort keys %{$data->{parameters}}) {
         my $value =  $data->{parameters}{$parameter};
+        return unless ref $value; # must be a UIC::Type
         
-        # boolean: true
-        if ($value eq UIC::TRUE()) {
-            $uic .= "$parameter! ";
+        # boolean.
+        if ($value->isa('UIC::Type::Boolean')) {
+            $uic .= "$parameter! " if $value->bool;
             next;
         }
         
-        # boolean: false
-        if ($value eq UIC::FALSE()) {
-            next;
+        my $indicator = '';
+        
+        # string.
+        if ($value->isa('UIC::Type::String')) {
+            $value = $value->string;
         }
         
+        # number.
+        elsif ($value->isa('UIC::Type::Number')) {
+            $indicator = '#';
+            $value     = $value->number;
+        }
+        
+        # array.
+        elsif ($value->isa('UIC::Type::Array')) {
+            $indicator = '@';
+            $value     = $value->string_list;
+        }
+        
+        # object.
+        elsif ($value->isa('UIC::Type::Object')) {
+            $indicator = '$';
+            $value     = $value->type.q(.).$value->id;
+        }
+
         $value    =~ s/\(/\\\(/g;
         $value    =~ s/\)/\\\)/g;
-        $uic     .=  "$parameter($value) ";
+        $uic     .=  "$indicator$parameter($value) ";
     }
     
     # close the message. we are done.

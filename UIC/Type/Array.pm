@@ -14,7 +14,7 @@ use utf8;
 use overload
     fallback => 1,
     '@{}'=> sub { shift->{elements} },
-    '""' => sub { '('.(join ', ', shift->array).')' },
+    '""' => \&string_list,
     bool => sub { !!shift->array },
     '0+' => sub { scalar shift->array };
 
@@ -27,6 +27,10 @@ sub new {
 
 sub array {
     return @{shift->{elements}};
+}
+
+sub string_list {
+    return '('.(join ',', map { s/,/\\,/g } shift->array).')';
 }
 
 sub is_string  { 0 }

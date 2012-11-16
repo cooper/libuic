@@ -40,9 +40,9 @@ sub new {
 sub log {
 }
 
-######################
-### HANDLING DATA ####
-######################
+####################################
+### HANDLING AND PREPARING DATA ####
+####################################
 
 sub parse_data {
     my ($uic, $data) = @_;
@@ -58,6 +58,11 @@ sub process_parameters {
         next unless $val->isa('UIC::Type::Object');
         $parameters->{$param} = $uic->fetch_object($val->type, $val->id);
     }
+}
+
+# converts objects, arrays, etc. to UIC values for sending.
+sub prepare_parameters_for_sending {
+    my ($uic, $parameters) = @_;
 }
 
 ####################
