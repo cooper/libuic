@@ -4,9 +4,17 @@ package UIC::Type::Array;
 use warnings;
 use strict;
 use utf8;
+use overload fallback => 1, '@{}'=> sub { shift->{elements} };
 
 sub new {
-    return bless {}, shift;
+    my ($class, @elements) = @_;
+    return bless {
+        elements => \@elements
+    }, shift;
+}
+
+sub array {
+    return @{shift->{elements}};
 }
 
 sub is_string  { 0 }
