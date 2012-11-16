@@ -4,7 +4,10 @@ package UIC::Type::Array;
 use warnings;
 use strict;
 use utf8;
-use overload fallback => 1, '@{}'=> sub { shift->{elements} };
+use overload
+    fallback => 1,
+    '@{}'=> sub { shift->{elements} }
+    '""' => sub { join ',', shift->array };
 
 sub new {
     my ($class, @elements) = @_;
