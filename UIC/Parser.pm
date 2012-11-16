@@ -200,9 +200,13 @@ sub parse_line {
                     if ($char !~ m/\w/) {
                     
                         # if it's a space, we just have to make sure it's not in the middle.
-                        if ($char eq ' ') {
+                        if ($char =~ m/\s/) {
                             next CHAR if !defined $current{command_name} ||
                                          !length $current{command_name};
+                        
+                            # if the command name has length, we will just assume space terminates it.
+                            $current{command_done} = 1;
+                            
                         }
                     
                         # illegal error. disconnect. could also be JSON.
