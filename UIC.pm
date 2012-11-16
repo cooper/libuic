@@ -38,6 +38,16 @@ sub parse_data {
     # blah blah, call handlers.
 }
 
+# converts any instances of UIC::Object to actual objects if possible.
+sub process_parameters {
+    my ($uic, $parameters) = @_;
+    foreach my $param (keys %$parameters) {
+        next unless ref $parameters->{$param};
+        next unless $parameters->{$param}->isa('UIC::Object');
+        print "obj: ".$parameters->{$param}."\n";
+    }
+}
+
 #######################
 ### MESSAGE RETURNS ###
 #######################
