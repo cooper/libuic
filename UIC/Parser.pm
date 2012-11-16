@@ -52,6 +52,7 @@ sub parse_line {
                 if !defined $current{parameter_value};
                 
                 $current{parameter_value} .= $char;
+                continue;
             }
             
             # if we are parsing the command name, spaces are not allowed.
@@ -271,12 +272,6 @@ sub parse_line {
     
         $final{parameters}{messageID} = $final{message_id};
 
-    }
-    
-    # it is not valid for a command name to contain whitespace.
-    if ($final{command_name} =~ m/\s/) {
-        $@ = "command name '$final{command_name}' is not alphanumeric.";
-        return;
     }
     
     return \%final;
