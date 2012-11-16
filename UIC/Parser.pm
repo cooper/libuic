@@ -40,27 +40,7 @@ sub parse_line {
     
     CHAR: foreach my $char (split //, $line) {
     given ($char) {
-        
-        # space. we handle this here for simplicity, since just about everything trims spaces out.
-        when (' ') {
-        
-            # if we are inside a parameter value, the space is accounted for.
-            if ($current{inside_parameter}) {
 
-                # if there is no value, set it to an empty string.
-                $current{parameter_value} = q()
-                if !defined $current{parameter_value};
-                
-                $current{parameter_value} .= $char;
-            }
-            
-            # if we are parsing the command name, spaces are not allowed.
-            # this is checked at the end of the parser.
-            continue;    
-            # otherwise, we do not care about this space at all.
-            
-        }
-        
         # left bracket - starts a message
         when ('[') {
         
@@ -218,6 +198,13 @@ sub parse_line {
                     
                     # command names must be alphanumeric/_.
                     if ($char !~ m/\w/) {
+                    
+                        # if it's a space, we just have to make sure it's not in the middle.
+                        if ($char eq ' ') {
+                            next CHAR if !defined $current{command_name} ||
+                                         !length $current{command_name});
+                        }
+                    
                         # illegal error. disconnect. could also be JSON.
                         $@ = "character '$char' is illegal in command name";
                         return;
