@@ -27,6 +27,7 @@ use feature 'switch';
 # %final
 # (string)  command_name:       the name of the message command
 # (hash)    parameters:         hash of name:value parameters
+# (number)  message_id:         the message identifier or undef
 
 # Returned parameter types:
 #   array                                - UIC::Type::Array
