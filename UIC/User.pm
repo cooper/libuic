@@ -12,8 +12,16 @@ use parent 'UIC::EventedObject';
 sub new {
     my ($class, %opts) = @_;
     my $uic  = $opts{uic} || $UIC::main_uic;
-    my $user = bless \%opts, $class;
-    return $user;
+    
+    # make sure all required options are present.
+    foreach my $what (qw|id name software version|) {
+        next if exists $opts{$what};
+        $opts{name} ||= 'unknown';
+        $uic->log("user '$opts{name}' does not have '$what' option.");
+        return;
+    }
+    
+    return bless \%opts, $class;
 }
 
 ##########################

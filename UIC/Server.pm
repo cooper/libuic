@@ -14,7 +14,7 @@ sub new {
     my $uic = $opts{uic} || $UIC::main_uic;
     
     # make sure all required options are present.
-    foreach my $what (qw|name network_name id description|) {
+    foreach my $what (qw|name network_name id description software version|) {
         next if exists $opts{$what};
         $opts{name} ||= 'unknown';
         $uic->log("server '$opts{name}' does not have '$what' option.");
