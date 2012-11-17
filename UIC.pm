@@ -399,7 +399,7 @@ sub new_user {
     my ($uic, %opts) = @_;
     my $user = $uic->subclass('User')->new(%opts);
     $uic->set_user_for_id($opts{id}, $user);
-    return $server;
+    return $user;
 }
 
 # associate a user with a UID.
