@@ -271,8 +271,8 @@ sub fire_handler {
         # call info sub.
         $info_sub->(\%info);
         
-        # call it.
-        $h->{callback}(\%final_params, $return, \%info);
+        # call it. don't continue if it returns a false value.
+        $h->{callback}(\%final_params, $return, \%info) or last;
         
         # if the command expects a return value, return it.
         return $return if $info{wants_return};
