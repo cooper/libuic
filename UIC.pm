@@ -227,6 +227,9 @@ sub register_handler {
 #     someParameter => '0',
 #     someOther     => 'hello!'
 # });
+# returns a hash reference of return parameters if a message ID is specified.
+# the caller which handles the data is then responsible for sending a return command.
+# otherwise, fire_handler() returns undef.
 sub fire_handler {
     my ($uic, $command, $parameters, $info_sub) = @_;
 
@@ -270,6 +273,9 @@ sub fire_handler {
         
         # call it.
         $h->{callback}(\%final_params, $return, \%info);
+        
+        # if the command expects a return value, return it.
+        return $return if $info{wants_return};
         
     }}
 }
