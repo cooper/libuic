@@ -31,6 +31,12 @@ our $main_uic;
 sub new {
     my $uic = shift->SUPER::new(@_);
     $main_uic = $uic unless $main_uic;
+    
+    # register the object fetchers.
+    $uic->register_object_type_handler('usr', \&get_user);
+    $uic->register_object_type_handler('srv', \&get_server);
+    $uic->register_object_type_handler('chn', \&get_channel);
+    
     return $uic;
 }
 
