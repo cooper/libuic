@@ -24,4 +24,11 @@ sub new {
     return bless \%opts, $class;
 }
 
+##########################
+### UIC OBJECT METHODS ###
+##########################
+
+sub uic_id   { shift->{id} }
+sub uic_type { 'srv'       }
+
 1

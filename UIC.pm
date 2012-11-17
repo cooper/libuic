@@ -114,7 +114,7 @@ sub register_object_type_handler {
 sub fetch_object {
     my ($uic, $type, $id) = @_;
     return unless $uic->{type_callback}{$type};
-    return $uic->{type_callback}{$type}($id);
+    return $uic->{type_callback}{$type}($uic, $id);
 }
 
 #######################
@@ -369,6 +369,22 @@ sub servers {
 sub lookup_server_by_id {
     my ($uic, $id) = @_;
     return $uic->{servers}{$id};
+}
+
+###########################
+### UIC OBJECT FETCHING ###
+###########################
+
+sub get_user {
+
+}
+
+sub get_server {
+    shift->lookup_server_by_id(shift);
+}
+
+sub get_channel {
+
 }
 
 #####################

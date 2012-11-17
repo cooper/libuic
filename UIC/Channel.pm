@@ -8,4 +8,11 @@ use strict;
 use utf8;
 use parent 'UIC::EventedObject';
 
+##########################
+### UIC OBJECT METHODS ###
+##########################
+
+sub uic_id   { shift->{id} }
+sub uic_type { 'chn'       }
+
 1

@@ -16,4 +16,11 @@ sub new {
     return $user;
 }
 
+##########################
+### UIC OBJECT METHODS ###
+##########################
+
+sub uic_id   { shift->{id} }
+sub uic_type { 'usr'       }
+
 1
