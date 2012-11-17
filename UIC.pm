@@ -182,7 +182,7 @@ sub fire_return {
 # returns a handler identifier.
 sub register_handler {
     my ($uic, $command, $parameters, $callback, $priority, $package) = @_;
-    $priority ||= 0;
+    $priority   = defined $priority ? $priority : -100;
     $package  ||= (caller)[0];
     
     # make sure callback is CODE and parameters is HASH.
@@ -217,7 +217,7 @@ sub register_handler {
         id         => $id    
     };
     
-    $uic->log("registered handler $id for '$command' command to package $package");
+    $uic->log("registered handler $id of priority $priority for '$command' command to package $package");
     
     return $id;
 }
@@ -236,7 +236,7 @@ sub fire_handler {
     # no handlers for this command.
     return unless $uic->{handlers}{$command};
     
-    # call each handler.
+    # call each handler descending by priority.
     my $return = {};
     foreach my $priority (sort { $b <=> $a } keys %{$uic->{handlers}{$command}}) {
     foreach my $h (@{$uic->{handlers}{$command}{$priority}}) {
