@@ -20,7 +20,7 @@ sub new {
     my ($class, $value) = @_;
     return bless {
         bool  => !!$value,
-        value => value
+        value => $value
     }, $class;
 }
 
