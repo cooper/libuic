@@ -398,7 +398,7 @@ sub lookup_server_by_id {
 sub new_user {
     my ($uic, %opts) = @_;
     my $user = $uic->subclass('User')->new(%opts);
-    $uic->set_server_for_id($opts{id}, $server);
+    $uic->set_user_for_id($opts{id}, $user);
     return $server;
 }
 
