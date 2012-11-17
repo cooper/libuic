@@ -19,6 +19,7 @@ use UIC::Type::String;
 use UIC::Type::Number;
 use UIC::Type::Array;
 use UIC::Type::Object;
+use UIC::Type::Boolean;
 
 use Scalar::Util qw(looks_like_number blessed);
 
@@ -391,7 +392,7 @@ sub get_channel {
 ### MISCELLANEOUS ###
 #####################
 
-sub TRUE  () { '$_UIC_TRUE_$'  }
-sub FALSE () { '$_UIC_FALSE_$' }
+sub TRUE  () { UIC::Type::Boolean->new(1) }
+sub FALSE () { UIC::Type::Boolean->new(0) }
 
 1
