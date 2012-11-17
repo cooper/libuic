@@ -173,7 +173,6 @@ sub parse_line {
                         
                         # set value to a true value (1).
                         $final{parameters}{$current{parameter_name}} = UIC::Type::Boolean->new(1);
-                        delete $current{parameter_name};
                         
                         # make sure parameter name is not empty. ex: [command: !]
                         if (!defined $current{parameter_name}) {
@@ -183,6 +182,8 @@ sub parse_line {
                             return;
                             
                         }
+                        
+                        delete $current{parameter_name};
                         
                     }
                     
