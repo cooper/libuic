@@ -430,7 +430,7 @@ sub users {
 # find a user by his UID.
 sub lookup_user_by_id {
     my ($uic, $id) = @_;
-    return $uic->{servers}{$id};
+    return $uic->{users}{$id};
 }
 
 ###########################
