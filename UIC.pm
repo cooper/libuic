@@ -363,7 +363,7 @@ sub set_server_for_id {
 # dispose of a server.
 sub remove_server {
     my ($uic, $server) = @_;
-    delete $uic->{servers}{$server->{sid}};
+    delete $uic->{servers}{$server->{id}};
 }
 
 # number of recognized servers.
@@ -386,6 +386,49 @@ sub servers {
 
 # find a server by its SID.
 sub lookup_server_by_id {
+    my ($uic, $id) = @_;
+    return $uic->{servers}{$id};
+}
+
+######################
+### MANAGING USERS ###
+######################
+
+# create a user and associate it with this UIC object.
+sub new_user {
+    my ($uic, %opts) = @_;
+    my $user = $uic->subclass('User')->new(%opts);
+    $uic->set_server_for_id($opts{id}, $server);
+    return $server;
+}
+
+# associate a user with a UID.
+sub set_user_for_id {
+    my ($uic, $id, $user) = @_;
+    $uic->{users}{$id} = $user;
+    return $user;
+}
+
+# dispose of a user.
+sub remove_user {
+    my ($uic, $user) = @_;
+    delete $uic->{users}{$user->{id}};
+}
+
+# number of recognized users.
+sub number_of_users {
+    my $uic = shift;
+    return scalar keys %{$uic->{users}};
+}
+
+# returns a list of recognized users.
+sub users {
+    my $uic = shift;
+    return values %{$uic->{users}};
+}
+
+# find a user by his UID.
+sub lookup_user_by_id {
     my ($uic, $id) = @_;
     return $uic->{servers}{$id};
 }
