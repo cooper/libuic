@@ -75,7 +75,7 @@ sub prepare_parameters_for_sending {
             next;
         }
         
-        # otherwise...
+        # otherwise... REVISION: scalar references are interpreted as numbers.
         # if it's blessed, we will assume it's already prepared and an instance of UIC::Type.
         # using UIC::Type in a public send method forces a specific type. in particular,
         # anything that is not a reference (including plain numbers) will be interpreted as
@@ -91,6 +91,12 @@ sub prepare_parameters_for_sending {
         # if it's an array reference, it's obviously an array.
         if (ref $val eq 'ARRAY') {
             $parameters->{$param} = UIC::Type::Array->new(@$val);
+            next;
+        }
+        
+        # if it's a scalar reference, we will guess it's a number.
+        if (ref $val eq 'SCALAR' && looks_like_number($$val)) {
+            $parameters->{$param} = UIC::Type::Number->new($$val);
             next;
         }
         
