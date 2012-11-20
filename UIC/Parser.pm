@@ -304,7 +304,13 @@ sub make_uic_type {
     when ('' ) { return UIC::Type::String->new($value) }
     
     # number
-    when ('#') { return UIC::Type::Number->new($value) }
+    when ('#') {
+        if (!looks_like_number($value)) {
+            $@ = "'$value' is not numerical";
+            return;
+        }
+        return UIC::Type::Number->new($value);
+    }
     
     # array
     when ('@') {
@@ -376,7 +382,7 @@ sub make_uic_type {
                 # part of the identifier.
                 if ($current{got_separator}) {
                 
-                    ## identifiers must be numeric. XXX: what about scientific notation?
+                    ## identifiers must be numeric. X_XX: what about scientific notation?
                     # revision: we now use decimal identifiers for users.
                     #if ($char !~ m/\d/) {
                     #    $@ = "character '$char' in object identifier is not numeric";

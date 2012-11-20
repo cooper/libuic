@@ -24,6 +24,13 @@ sub new {
     return bless \%opts, $class;
 }
 
+# returns the next available user ID and increments the counter.
+sub next_user_id {
+    my $server = shift;
+    $server->{userID} ||= 0;
+    return $server->{id}.q(.).$server->{userID}++;
+}
+
 ##########################
 ### UIC OBJECT METHODS ###
 ##########################
