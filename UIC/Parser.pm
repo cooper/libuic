@@ -376,11 +376,12 @@ sub make_uic_type {
                 # part of the identifier.
                 if ($current{got_separator}) {
                 
-                    # identifiers must be numeric. XXX: what about scientific notation?
-                    if ($char !~ m/\d/) {
-                        $@ = "character '$char' in object identifier is not numeric";
-                        return;
-                    }
+                    ## identifiers must be numeric. XXX: what about scientific notation?
+                    # revision: we now use decimal identifiers for users.
+                    #if ($char !~ m/\d/) {
+                    #    $@ = "character '$char' in object identifier is not numeric";
+                    #    return;
+                    #}
                 
                     $identifier .= $char;
                 }
