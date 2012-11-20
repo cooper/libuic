@@ -6,6 +6,7 @@ use strict;
 use utf8;
 use feature 'switch';
 
+use Scalar::Util 'looks_like_number';
 
 # %current
 #
