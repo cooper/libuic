@@ -9,7 +9,8 @@ use utf8;
 use feature qw(switch);
 use parent 'EventedObject';
 
-use UIC::EventedObject;
+use EventedObject;
+
 use UIC::Server;
 use UIC::User;
 use UIC::Channel;
