@@ -302,7 +302,7 @@ sub make_uic_type {
     given ($type) {
     
     # string
-    when ('' ) { return UIC::Type::String->new($value) }
+    when ('') { return UIC::Type::String->new($value) }
     
     # number
     when ('#') {

@@ -7,7 +7,7 @@ use warnings;
 use strict;
 use utf8;
 use feature qw(switch);
-use parent 'UIC::EventedObject';
+use parent 'EventedObject';
 
 use UIC::EventedObject;
 use UIC::Server;

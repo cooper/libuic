@@ -6,7 +6,7 @@ package UIC::Channel;
 use warnings;
 use strict;
 use utf8;
-use parent 'UIC::EventedObject';
+use parent 'EventedObject';
 
 ##########################
 ### UIC OBJECT METHODS ###

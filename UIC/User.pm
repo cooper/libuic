@@ -6,7 +6,7 @@ package UIC::User;
 use warnings;
 use strict;
 use utf8;
-use parent 'UIC::EventedObject';
+use parent 'EventedObject';
 
 # create a new user.
 sub new {
