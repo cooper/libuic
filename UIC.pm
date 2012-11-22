@@ -249,7 +249,7 @@ sub fire_handler {
             else {
                 foreach my $parameter (keys %{$h->{parameters}}) {
                     # TODO: make sure the type matches the handler type.
-                    $final_params->add($parameter, $h->{parameters}{$parameter}, $parameters->{$parameter});
+                    $final_params->add($parameter, $h->{parameters}{$parameter}, $parameters->{$parameter})
                     if exists $parameters->{$parameter};
                 }
             }
