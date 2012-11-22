@@ -152,9 +152,14 @@ sub parse_line {
                         # it is legal for a parameter to lack a value or have a value of ""
                         # just saying. no reason to check if parameter_value has a length.
                         
-                        # end the value.
-                        my $result = $final{parameters}{$current{parameter_name}} =
-                        make_uic_type($current{parameter_type}, $current{parameter_value});
+                        $final{parameters} = UIC::ParameterList->new if !$final{parameters};
+                        
+                        # parse the parameter value.
+                        my $result = make_uic_type(
+                            $current{parameter_name},
+                            $current{parameter_type},
+                            $current{parameter_value}
+                        );
                         
                         # parameter value parse error.
                         if (!defined $result) {
@@ -162,18 +167,16 @@ sub parse_line {
                             return;
                         }
                         
+                        $final{parameters}->add(@$result);
+                        
                         delete $current{inside_parameter};
                         delete $current{parameter_name};
                         delete $current{parameter_value};
                         delete $current{parameter_type};
-                        
                     }
                     
                     # exclamation mark - indicates a boolean parameter. ex: [someCommand: someParameter(some value) someBool!]
                     elsif ($char eq '!' && !$current{parameter_escape} && !$current{inside_parameter}) {
-                        
-                        # set value to a true value (1).
-                        $final{parameters}{$current{parameter_name}} = UIC::Type::Boolean->new(1);
                         
                         # make sure parameter name is not empty. ex: [command: !]
                         if (!defined $current{parameter_name}) {
@@ -183,6 +186,10 @@ sub parse_line {
                             return;
                             
                         }
+                        
+                        # set value to a true value (1).
+                        $final{parameters} = UIC::ParameterList->new if !$final{parameters};
+                        $final{parameters}->add($current{parameter_name}, 'boolean', 1);
                         
                         delete $current{parameter_name};
                         
@@ -294,15 +301,15 @@ sub parse_line {
     return \%final;
 }
 
-# make a UIC::Type object for the type indicator and parameter value specified.
+# make an array for the type indicator and parameter value specified used in ParameterList.
 # obviously, boolean types are the single exception.
 # sets $@ and returns undef if a parse error occurs.
 sub make_uic_type {
-    my ($type, $value) = @_;
+    my ($name, $type, $value) = @_;
     given ($type) {
     
     # string
-    when ('') { return UIC::Type::String->new($value) }
+    when ('') { return [$name, 'string', $value] }
     
     # number
     when ('#') {
@@ -310,7 +317,7 @@ sub make_uic_type {
             $@ = "'$value' is not numerical";
             return;
         }
-        return UIC::Type::Number->new($value);
+        return [$name, 'number', $value];
     }
     
     # array
@@ -349,7 +356,7 @@ sub make_uic_type {
         # final value.
         push @final, delete $current{value} if defined $current{value};
 
-        return UIC::Type::Array->new(@final);
+        return [$name, 'array', \@final];
     }
     
     # object
@@ -409,7 +416,7 @@ sub make_uic_type {
         
         }}
         
-        return UIC::Type::Object->new($type, $identifier);
+        return [$name, 'object', [$type, $identifier]];
         
     }
         
@@ -434,7 +441,7 @@ sub make_uic_type {
 #
 # this is not intended to be used directly
 # other than in UIC and UICd APIs.
-sub encode {
+sub encode { return 0;
     my $data = {@_};
     my $uic = q();
     

@@ -28,7 +28,7 @@ sub new {
 
 # adds a parameter $param of type $type.
 sub add {
-    my ($list, $type, $param, $value) = @_;
+    my ($list, $param, $type, $value) = @_;
     $list->{$inner}{type}{$param}     = $type;
     $list->{$inner}{value}{$param}    = $value;
     return 1;
