@@ -55,11 +55,11 @@ sub parse_data {
 # converts any instances of UIC::Object to actual objects if possible.
 sub process_parameters {
     my ($uic, $parameters) = @_;
-    foreach my $param (keys %$parameters) {
+    foreach my $param ($parameters->keys) {
         my $val = $parameters->{$param};
-        next unless ref $val;
-        next unless $val->isa('UIC::Type::Object');
-        $parameters->{$param} = $uic->fetch_object($val->type, $val->id);
+        next if !ref $val || ref $val ne 'ARRAY';
+        next unless $parameters->type_of($param) eq 'object';
+        $parameters->{$param} = $uic->fetch_object($parameters->{$param}[0], $parameters->{$param}[1]);
     }
     return $parameters;
 }

@@ -17,7 +17,7 @@ sub new {
     my $list = bless {}, $class;
     
     # process the parameters.
-    foreach my $param (keys %params) {
+    foreach my $param (CORE::keys %params) {
         my ($type, $value) = @{$params{$param}};
         $list->{$inner}{type}{$param}  = $type;
         $list->{$inner}{value}{$param} = $value;
@@ -25,6 +25,12 @@ sub new {
     }
     
     return $list;
+}
+
+# returns the keys of the parameters.
+sub keys {
+    my $list = shift;
+    return CORE::keys %{$list->{$inner}{value}};
 }
 
 # adds a parameter $param of type $type.
@@ -50,7 +56,7 @@ sub has {
 # returns the number of parameters in the list.
 sub count {
     my $list = shift;
-    return scalar keys %{$list->{$inner}{value}};
+    return scalar CORE::keys %{$list->{$inner}{value}};
 }
 
 1
