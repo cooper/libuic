@@ -238,24 +238,26 @@ sub fire_handler {
     
         # handle parameters.
         my $final_params = UIC::ParameterList->new;
-        if ($parameters) {
         
-            # handler accepts all parameters.
-            if ($h->{parameters} eq 'all') {
-                $final_params = $parameters;
+        # hash of parameters.
+        if ($parameters && ref $h->{parameters}) {
+            foreach my $parameter (keys %{$h->{parameters}}) {
+                
+                # types do not match.
+                next if ($h->{parameters}{$parameter} ne $parameters->type_of($parameter));
+                
+                # okay.
+                $final_params->add($parameter, $h->{parameters}{$parameter}, $parameters->{$parameter})
+                if exists $parameters->{$parameter};
+
             }
-            
-            # process parameters.
-            else {
-                foreach my $parameter (keys %{$h->{parameters}}) {
-                    # TODO: make sure the type matches the handler type.
-                    $final_params->add($parameter, $h->{parameters}{$parameter}, $parameters->{$parameter})
-                    if exists $parameters->{$parameter};
-                }
-            }
-            
         }
         
+        # accepts all parameters.
+        elsif ($parameters && $h->{parameters} eq 'all') {
+            $final_params = $parameters;
+        }
+    
         # create information object.
         my %info = (
             caller   => [caller 1],
