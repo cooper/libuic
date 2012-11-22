@@ -15,12 +15,7 @@ use UIC::Server;
 use UIC::User;
 use UIC::Channel;
 use UIC::Parser;
-
-use UIC::Type::String;
-use UIC::Type::Number;
-use UIC::Type::Array;
-use UIC::Type::Object;
-use UIC::Type::Boolean;
+use UIC::ParameterList;
 
 use Scalar::Util qw(looks_like_number blessed);
 
