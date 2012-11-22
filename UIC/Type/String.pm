@@ -11,7 +11,7 @@ use warnings;
 use strict;
 use utf8;
 use overload
-    #fallback => 1,
+    fallback => 1,
     '""' => \&string,
     '0+' => sub { 0 },
     bool => sub { !!shift->string };
@@ -23,7 +23,7 @@ sub new {
     }, $class;
 }
 
-sub string {
+sub string {print "interpreting as string\n";
     shift->{string};
 }
 
