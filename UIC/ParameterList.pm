@@ -21,6 +21,7 @@ sub new {
         my ($type, $value) = @{$params{$param}};
         $list->{$inner}{type}{$param}  = $type;
         $list->{$inner}{value}{$param} = $value;
+        $list->{$param} = $value;
     }
     
     return $list;

@@ -64,41 +64,40 @@ sub process_parameters {
     return $parameters;
 }
 
-# converts objects, arrays, etc. to UIC::Type values for sending.
+# converts objects, arrays, etc. to [type, value] arrays values for sending.
 sub prepare_parameters_for_sending {
     my ($uic, $parameters) = @_;
     
     foreach my $param (keys %$parameters) {
         my $val = $parameters->{$param};
         
+        
         # if it's blessed and has methods 'uic_id' and 'uic_type', it's an object.
         if (blessed $val && $val->can('uic_id') && $val->can('uic_type')) {
-            $parameters->{$param} = UIC::Object->new($val->uic_type, $val->uic_id);
+            $parameters->{$param} = ['object', [$val->uic_type, $val->uic_id]];
             next;
         }
         
-        # otherwise... REVISION: scalar references are interpreted as numbers.
-        # if it's blessed, we will assume it's already prepared and an instance of UIC::Type.
-        # using UIC::Type in a public send method forces a specific type. in particular,
-        # anything that is not a reference (including plain numbers) will be interpreted as
-        # strings by this method. numbers must always be UIC::Type::Number in advance.
-        next if blessed $val;
-        
         # if it's not a reference, just assume it is a string (even if it's not a string)
         if (!ref $val) {
-            $parameters->{$param} = UIC::Type::String->new($val);
+        
+            # unless it is equal to TRUE or FALSE because then it must be boolean.
+            if ($val eq  UIC::TRUE()) { $parameters->{$param} = ['boolean', 1    ] and next }
+            if ($val eq UIC::FALSE()) { $parameters->{$param} = ['boolean', undef] and next }
+        
+            $parameters->{$param} = ['string', $val];
             next;
         }
         
         # if it's an array reference, it's obviously an array.
         if (ref $val eq 'ARRAY') {
-            $parameters->{$param} = UIC::Type::Array->new(@$val);
+            $parameters->{$param} = ['array', $val];
             next;
         }
         
         # if it's a scalar reference, we will guess it's a number.
         if (ref $val eq 'SCALAR' && looks_like_number($$val)) {
-            $parameters->{$param} = UIC::Type::Number->new($$val);
+            $parameters->{$param} = ['number', $$val];
             next;
         }
         
@@ -449,7 +448,7 @@ sub get_channel {
 ### MISCELLANEOUS ###
 #####################
 
-sub TRUE  () { UIC::Type::Boolean->new(1) }
-sub FALSE () { UIC::Type::Boolean->new(0) }
+sub TRUE  () { '$_UIC_TRUE_$'  }
+sub FALSE () { '$_UIC_FALSE_$' }
 
 1

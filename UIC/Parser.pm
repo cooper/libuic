@@ -429,19 +429,20 @@ sub make_uic_type {
 # encode Perl data into a UIC message.
 #
 # not intended to convert IDs to objects, numbers to bools, etc.
-# simply takes UIC::Type parameters and magically turns them into
-# a UIC message.
+# simply takes parameters and magically turns them into a UIC message.
 #
 # UIC::Parser::encode(
 #     command_name => 'hello',
 #     parameters   => {
-#         someParameter => UIC::Type::String->new('someValue')
+#         someParameter => []
 #     }
 # );
 #
 # this is not intended to be used directly
 # other than in UIC and UICd APIs.
-sub encode { return 0;
+#
+# in libuic, be sure to $uic->prepare_parameters_for_sending().
+sub encode {
     my $data = {@_};
     my $uic = q();
     
@@ -461,40 +462,41 @@ sub encode { return 0;
     # otherwise, start the parameter list.
     $uic .= q(: );
     
-    # iterate through each parameter.
+    # iterate through each parameter. [name, type, value]
     foreach my $parameter (sort keys %{$data->{parameters}}) {
-        my $value =  $data->{parameters}{$parameter};
-        return unless ref $value; # must be a UIC::Type
+        my $a =  $data->{parameters}{$parameter};
+        return if !ref $a || ref $a ne 'ARRAY';
+        my ($type, $value) = @$a;
         
         # boolean.
-        if ($value->isa('UIC::Type::Boolean')) {
-            $uic .= "$parameter! " if $value->bool;
+        if ($type eq 'boolean') {
+            $uic .= "$parameter! " if $value;
             next;
         }
         
         my $indicator = '';
         
         # string.
-        if ($value->isa('UIC::Type::String')) {
-            $value = $value->string;
+        if ($type eq 'string') {
+            # indicator already ''
+            # value already set
         }
         
         # number.
-        elsif ($value->isa('UIC::Type::Number')) {
+        elsif ($type eq 'number') {
             $indicator = '#';
-            $value     = $value->number;
         }
         
         # array.
-        elsif ($value->isa('UIC::Type::Array')) {
+        elsif ($type eq 'array') {
             $indicator = '@';
-            $value     = $value->string_list;
+            $value     = join ',', map { s/,/\\,/g } @$value;
         }
         
         # object.
-        elsif ($value->isa('UIC::Type::Object')) {
+        elsif ($type eq 'object') {
             $indicator = '$';
-            $value     = $value->type.q(.).$value->id;
+            $value     = $value->[0].q(.).$value->[1];
         }
 
         $value    =~ s/\(/\\\(/g;
