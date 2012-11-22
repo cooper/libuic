@@ -276,6 +276,7 @@ sub fire_handler {
         return $return if $info{wants_return};
         
     }}
+    return;
 }
 
 ###################
