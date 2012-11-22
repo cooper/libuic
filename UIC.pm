@@ -234,18 +234,18 @@ sub fire_handler {
     
     # call each handler descending by priority.
     my $return = {};
-    foreach my $priority (sort { $b <=> $a } keys %{$uic->{handlers}{$command}}) {
-    foreach my $h (@{$uic->{handlers}{$command}{$priority}}) {
+    PRIORITY: foreach my $priority (sort { $b <=> $a } keys %{$uic->{handlers}{$command}}) {
+    HANDLER:  foreach my $h (@{$uic->{handlers}{$command}{$priority}}) {
     
         # handle parameters.
         my $final_params = UIC::ParameterList->new;
         
         # hash of parameters.
         if ($parameters && ref $h->{parameters}) {
-            foreach my $parameter (keys %{$h->{parameters}}) {
+            PARAMETER: foreach my $parameter (keys %{$h->{parameters}}) {
                 
                 # types do not match.
-                next if ($h->{parameters}{$parameter} ne $parameters->type_of($parameter));
+                next PARAMETER if ($h->{parameters}{$parameter} ne $parameters->type_of($parameter));
                 
                 # okay.
                 $final_params->add($parameter, $h->{parameters}{$parameter}, $parameters->{$parameter})
@@ -270,7 +270,7 @@ sub fire_handler {
         $info_sub->(\%info);
         
         # call it. don't continue if it returns a false value.
-        $h->{callback}($final_params, $return, \%info) or last;
+        $h->{callback}($final_params, $return, \%info) or last PRIORITY;
         
         # if the command expects a return value, return it.
         return $return if $info{wants_return};
