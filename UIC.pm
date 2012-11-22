@@ -192,7 +192,7 @@ sub register_handler {
     
     # make sure the types are valid.
     if (ref $parameters) {
-        my @valid = qw(number bool string user server channel);
+        my @valid = qw(number boolean string user server channel);
         foreach my $parameter (keys %$parameters) {
            $uic->log("invalid type '$$parameters{$parameter}'")
            and return unless scalar grep { $_ eq $parameters->{$parameter} } @valid;
