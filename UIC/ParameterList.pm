@@ -38,6 +38,7 @@ sub add {
     my ($list, $param, $type, $value) = @_;
     $list->{$inner}{type}{$param}     = $type;
     $list->{$inner}{value}{$param}    = $value;
+    $list->{$param} = $value;
     return 1;
 }
 

@@ -237,20 +237,20 @@ sub fire_handler {
     foreach my $h (@{$uic->{handlers}{$command}{$priority}}) {
     
         # handle parameters.
-        my %final_params;
+        my $final_params = UIC::ParameterList->new;
         if ($parameters) {
         
             # handler accepts all parameters.
             if ($h->{parameters} eq 'all') {
-                %final_params = %$parameters;
+                $final_params = $parameters;
             }
             
             # process parameters.
             else {
                 foreach my $parameter (keys %{$h->{parameters}}) {
-                    $final_params{$parameter} =
-                   $uic->interpret_string_as($h->{parameters}{$parameter}, $parameters->{$parameter})
-                 if exists $parameters->{$parameter};
+                    # TODO: make sure the type matches the handler type.
+                    $final_params->add($parameter, $h->{parameters}{$parameter}, $parameters->{$parameter});
+                    if exists $parameters->{$parameter};
                 }
             }
             
@@ -267,55 +267,12 @@ sub fire_handler {
         $info_sub->(\%info);
         
         # call it. don't continue if it returns a false value.
-        $h->{callback}(\%final_params, $return, \%info) or last;
+        $h->{callback}($final_params, $return, \%info) or last;
         
         # if the command expects a return value, return it.
         return $return if $info{wants_return};
         
     }}
-}
-
-############################
-### UIC TYPE CONVERSIONS ###
-############################
-
-# UIC type conversions. true hackery.
-sub interpret_string_as {
-    my ($uic, $type, $string) = @_;
-    given ($type) {
-
-        # string - append an empty string.
-        when ('string') {
-            return $string.q();
-        }
-        
-        # number - add a zero.
-        when ('number') {
-            if (looks_like_number($string)) {
-                return $string + 0;
-            }
-            return 1;
-        }
-        
-        # bool - double opposite.
-        when ('bool') {
-            return !!$string;
-        }
-        
-        # user - lookup a user object.
-        when ('user') {
-        }
-        
-        # channel - lookup a channel object.
-        when ('channel') {
-        }
-        
-        # server - lookup a server object.
-        when ('server') {
-        }
-        
-    }
-    return;
 }
 
 ###################
