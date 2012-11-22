@@ -68,7 +68,7 @@ sub process_parameters {
 # converts objects, arrays, etc. to [type, value] arrays values for sending.
 sub prepare_parameters_for_sending {
     my ($uic, $parameters) = @_;
-    
+    print "parameters in sending: $parameters\n";
     foreach my $param (keys %$parameters) {
         my $val = $parameters->{$param};
         
