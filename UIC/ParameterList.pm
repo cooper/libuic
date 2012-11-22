@@ -51,7 +51,7 @@ sub type_of {
 # returns true if a parameter is present and defined.
 sub has {
     my ($list, @params) = @_;
-    return unless defined $list->{$inner}{value}{$_} foreach @params;
+    foreach (@params) { return unless defined $list->{$inner}{value}{$_} }
     return 1;
 }
 
