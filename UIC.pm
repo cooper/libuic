@@ -129,10 +129,12 @@ sub register_object_type_handler {
     return if !ref $callback || ref $callback ne 'CODE';
     $uic->{type_callback}{$type} = $callback;
     my $name = "uic.objectTypeHandler.$type";
+    
     $uic->register_event(
         $name => $callback,
         name  => $name
     ) or return;
+    
     $uic->log("registered object type '$type'");
     return $name;
 }
@@ -149,36 +151,42 @@ sub fetch_object {
 ### MESSAGE RETURNS ###
 #######################
 
+
+# note: return callbacks are deleted automatically after being fired.
+
+
 # store a callback for when return is received.
+# returns the callback identifier.
 sub register_return_handler {
     my ($uic, $id, $callback, $parameters) = @_;
+    my $name = "uic.returnHandler.$id";
+    
+    # callback must be code reference and parameters must be hash reference.
     return unless ref $callback eq 'CODE';
-    return if defined $parameters && ref $parameters ne 'HASH';
-    $uic->{return_callback}{$id} ||= [];
-    push @{$uic->{return_callback}{$id}}, [$callback, $parameters];
+    return if defined $parameters && ref $parameters ne 'HASH'; 
+
+    $uic->register_event(
+       $name => sub {
+            my $info = shift;
+            
+            # TODO: check types.
+            # parameter types are stored in $uic->{event_data}
+            
+            $callback->($parameters, $info);
+        },
+        name => $name,
+        data => $parameters
+    ) or return;
+    
+    return $name;
 }
 
 # fire a return callback.
 sub fire_return {
     my ($uic, $id, $parameters, $info) = @_;
-    return unless $uic->{return_callback}{$id};
-    
-    foreach my $r (@{$uic->{return_callback}{$id}}) {
-    
-        # convert types if necessary.
-        if ($r->[1]) {
-            foreach my $parameter (keys %{$r->[1]}) {
-                $parameters->{$parameter} =
-                $uic->interpret_string_as($r->[1]{$parameter}, $parameters->{$parameter})
-                if exists $parameters->{$parameter};
-            }
-        }
-   
-        # call it.
-        $r->[0]->($parameters, $info);
-        
-    }
-    delete $uic->{return_callback}{$id} if $uic->{return_callback}{$id};
+    my $name = "uic.returnHandler.$id";
+    $uic->fire_event($name, $info);
+    $uic->delete_event($name);
 }
 
 #################################
