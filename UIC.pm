@@ -1,7 +1,7 @@
 # Copyright (c) 2012, Mitchell Cooper
 # UIC: manages servers, users, and channels on a UIC network or server.
 # performs tasks that do not fall under the subcategories of server, user, connection, or channel.
-package UIC;
+package UIC 1.0;
 
 use warnings;
 use strict;
@@ -50,6 +50,10 @@ sub log {
 sub parse_data {
     my ($uic, $data) = @_;
     # blah blah, call handlers.
+}
+
+# registers a data parsing handler.
+sub register_parse_handler {
 }
 
 # converts any instances of UIC::Object to actual objects if possible.
@@ -111,19 +115,34 @@ sub prepare_parameters_for_sending {
 ####################
 
 # register an object type handler.
-# object type handlers convert instances of UIC::Type::Object into a real Perl object.
+# object type handlers convert UIC object types into a real Perl object.
+#
+# returns the type handler name.
+#
+# by the way, the last-called handler is always used
+# (which would be the one with the LOWEST priority)
+# but honestly, you should only have one handler per type.
+# there's just no rule that says so.
+#
 sub register_object_type_handler {
     my ($uic, $type, $callback) = @_;
     return if !ref $callback || ref $callback ne 'CODE';
     $uic->{type_callback}{$type} = $callback;
+    my $name = "uic.objectTypeHandler.$type";
+    $uic->register_event(
+        $name => $callback,
+        name  => $name
+    ) or return;
     $uic->log("registered object type '$type'");
+    return $name;
 }
 
 # returns an object of $type with ID $id.
 sub fetch_object {
     my ($uic, $type, $id) = @_;
-    return unless $uic->{type_callback}{$type};
-    return $uic->{type_callback}{$type}($uic, $id);
+    $uic->fire_event("uic.objectTypeHandler.$type");
+    return unless $uic->{event_return};
+    return $uic->{event_return};
 }
 
 #######################
