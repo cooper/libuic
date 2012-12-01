@@ -276,8 +276,8 @@ sub _handler_callback {  # actual parameter values.
     # create information object.
     my %info = (
         caller   => [caller 1],
-        command  => $command,
-        priority => $priority
+        command  => $h->{command},
+        priority => $uic->{event_info}{priority}
     );
     
     # call info sub.
