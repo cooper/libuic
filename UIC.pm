@@ -322,7 +322,7 @@ sub _handler_callback {  # actual parameter values.
             # types do not match.
             next PARAMETER
              if $h->{parameters}{$parameter} &&
-             $h->{parameters}{$parameter} ne $parameters->type_of($parameter));
+             $h->{parameters}{$parameter} ne $parameters->type_of($parameter);
             
             # okay, let's add the parameter.
             $final_params->add($parameter, $parameters->type_of($parameter), $parameters->{$parameter})
