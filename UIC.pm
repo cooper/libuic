@@ -170,7 +170,7 @@ sub register_return_handler {
             my $info = shift;
             
             # TODO: check types.
-            # parameter types are stored in $uic->{event_data}
+            # parameter types are stored in $uic->{event_data}{parameters}
             
             $callback->($parameters, $info);
         },
@@ -311,6 +311,12 @@ sub fire_handler {
     return $return if $uic->{event_return};
     return;
     
+}
+
+# delete a command handler.
+sub delete_handler {
+    my ($uic, $command, $id) = @_;
+    $uic->delete_event($command => $id);
 }
 
 ###################
