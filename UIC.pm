@@ -240,14 +240,14 @@ sub register_handler {
     
     # register the event.
     $uic->register_event(
-        $command => \&_handler_callback,
+        "uic.commandHandler.$command" => \&_handler_callback,
         name     => $name,
         data     => \%data,
         with_obj => 1
     ) or return;
     
     $uic->log("registered handler $id of priority $priority for '$command' command to package $package");
-    
+
     return $name;
 }
 
