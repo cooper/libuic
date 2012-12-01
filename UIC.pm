@@ -61,13 +61,13 @@ sub parse_data {
     my ($uic, $data, $object) = @_;
     
     # determine which parsers to attempt.
-    my @parsers = $uicd->{preferred_parser} ? $uicd->{preferred_parser} : @{$uicd->{parseHandlers}};
+    my @parsers = $uic->{preferred_parser} ? $uic->{preferred_parser} : @{$uic->{parseHandlers}};
 
     # iterate through each parser until one works.
     my $errors = {};
     foreach my $parser (@parsers) {
-        $uicd->fire_event("uic.parseHandler.$parser" => $data, $errors, $object);
-        return if $uicd->{event_return};
+        $uic->fire_event("uic.parseHandler.$parser" => $data, $errors, $object);
+        return if $uic->{event_return};
     }
     
     return $errors;
