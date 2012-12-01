@@ -82,7 +82,7 @@ sub _client_parser {
 # registers a data parsing handler.
 # type should a human-readable single-word type of the parser, such as 'UICdUJCParser'
 # the type must be completely unique.
-# returns the identifier of the handler.
+# returns the identifier of the handler (which differs from the event identifier, btw).
 sub register_parse_handler {
     my ($uic, $type, $callback) = @_;
     my $name = "uic.parseHandler.$type";
@@ -99,7 +99,7 @@ sub register_parse_handler {
     push @{$uic->{parseHandlers}}, $type;
     
     $uic->log("registered parser handler '$type' successfully");
-    return $name;
+    return $type;
 }
 
 # deletes a data parsing handler.
