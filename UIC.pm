@@ -231,7 +231,7 @@ sub register_handler {
     my %data = (
         command    => $command,
         callback   => $callback,
-        parameters => $parameters,
+        parameters => $parameters, # parameter types.
         priority   => $priority,
         package    => $package,
         id         => $id,
@@ -252,8 +252,9 @@ sub register_handler {
 }
 
 # not to be used directly.
-sub _handler_callback {
+sub _handler_callback {  # actual parameter values.
     my ($uic, $info_sub, $parameters, $return) = @_;
+    my $h = $uic->{event_data};
     
     # handle parameters.
     my $final_params = UIC::ParameterList->new;
