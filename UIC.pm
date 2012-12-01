@@ -98,7 +98,7 @@ sub register_parse_handler {
     $uic->{parseHandlers} ||= [];
     push @{$uic->{parseHandlers}}, $type;
     
-    log2("registered parser handler '$type' successfully");
+    $uic->log("registered parser handler '$type' successfully");
     return $name;
 }
 
@@ -114,7 +114,7 @@ sub delete_parse_handler {
     # delete the event.
     $uic->delete_event($name => $name);
     
-    log2("removed parser handler '$type'");
+    $uic->log("removed parser handler '$type'");
     return 1;
 }
 
