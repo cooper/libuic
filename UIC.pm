@@ -33,6 +33,9 @@ sub new {
     $uic->register_object_type_handler('srv', \&get_server);
     $uic->register_object_type_handler('chn', \&get_channel);
     
+    # registers the main parse handler.
+    $uic->register_parse_handler('libuicUICClientParser', \&_client_parser);
+    
     return $uic;
 }
 
@@ -49,9 +52,31 @@ sub log {
 
 # this actually handles the data, calling the parse handlers.
 # this is used for both UIC clients and UICd.
+# $object is an object associated with the connection.
+#    in uicd, a connection object.
+#    in a client using IO::Async, an IO::Async::Stream.
+#    etc.
+# returns undef if successful or \%errors if not.
 sub parse_data {
-    my ($uic, $data) = @_;
-    # blah blah, call handlers.
+    my ($uic, $data, $object) = @_;
+    
+    # determine which parsers to attempt.
+    my @parsers = $uicd->{preferred_parser} ? $uicd->{preferred_parser} : @{$uicd->{parseHandlers}};
+
+    # iterate through each parser until one works.
+    my $errors = {};
+    foreach my $parser (@parsers) {
+        $uicd->fire_event("uic.parseHandler.$parser" => $data, $errors, $object);
+        return if $uicd->{event_return};
+    }
+    
+    return $errors;
+}
+
+# the main client parser.
+sub _client_parser {
+    my ($data, $errors) = @_;
+    return 1;
 }
 
 # registers a data parsing handler.
@@ -64,8 +89,9 @@ sub register_parse_handler {
     
     # create the event.
     $uic->register_event(
-        $name => $callback,
-        name  => $name
+        $name    => $callback,
+        name     => $name,
+        with_obj => 1
     );
     
     # store the type for later use.
@@ -152,11 +178,7 @@ sub prepare_parameters_for_sending {
 # object type handlers convert UIC object types into a real Perl object.
 #
 # returns the type handler name.
-#
-# by the way, the last-called handler is always used
-# (which would be the one with the LOWEST priority)
-# but honestly, you should only have one handler per type.
-# there's just no rule that says so.
+# honestly, you should only have one handler per type.
 #
 sub register_object_type_handler {
     my ($uic, $type, $callback) = @_;
