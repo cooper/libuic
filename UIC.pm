@@ -212,37 +212,83 @@ sub register_handler {
     $uic->log('callback is not a CODE reference.')
     and return if !ref $callback || ref $callback ne 'CODE';
     
-    if ($parameters ne 'all') {
-        $uic->log('parameters is not a HASH reference.')
-        and return if !ref $callback || ref $parameters ne 'HASH';
-    }
+    # parameters must be hash reference.
+    $uic->log('parameters is not a HASH reference.')
+    and return if !ref $parameters || ref $parameters ne 'HASH';
     
     # make sure the types are valid.
-    if (ref $parameters) {
-        my @valid = qw(number boolean string user server channel);
-        foreach my $parameter (keys %$parameters) {
-           $uic->log("invalid type '$$parameters{$parameter}'")
-           and return unless scalar grep { $_ eq $parameters->{$parameter} } @valid;
-        }
+    my @valid = qw(number boolean string user server channel);
+    foreach my $parameter (keys %$parameters) {
+       $uic->log("invalid type '$$parameters{$parameter}'")
+       and return unless scalar grep { $_ eq $parameters->{$parameter} } @valid;
     }
     
     # generate an identifier.
-    my $id = defined $uic->{handlerID} ? ++$uic->{handlerID} : ($uic->{handlerID} = 0);
+    my $id   = defined $uic->{handlerID} ? ++$uic->{handlerID} : ($uic->{handlerID} = 0);
+    my $name = "uic.commandHandler.$command.$id";
     
-    # store the handler.
-    $uic->{handlers}{$command}{$priority} ||= [];
-    push @{$uic->{handlers}{$command}{$priority}}, {
+    # create event_data.
+    my %data = (
         command    => $command,
         callback   => $callback,
         parameters => $parameters,
         priority   => $priority,
         package    => $package,
-        id         => $id    
-    };
+        id         => $id,
+        actualID   => $name
+    );
+    
+    # register the event.
+    $uic->register_event(
+        $command => \&_handler_callback,
+        name     => $name,
+        data     => \%data,
+        with_obj => 1
+    ) or return;
     
     $uic->log("registered handler $id of priority $priority for '$command' command to package $package");
     
-    return $id;
+    return $name;
+}
+
+# not to be used directly.
+sub _handler_callback {
+    my ($uic, $info_sub, $parameters, $return) = @_;
+    
+    # handle parameters.
+    my $final_params = UIC::ParameterList->new;
+    
+    # hash of parameters.
+    if ($parameters && ref $h->{parameters}) {
+        PARAMETER: foreach my $parameter (keys %{$h->{parameters}}) {
+            
+            # types do not match.
+            next PARAMETER if ($h->{parameters}{$parameter} ne $parameters->type_of($parameter));
+            
+            # okay.
+            $final_params->add($parameter, $h->{parameters}{$parameter}, $parameters->{$parameter})
+            if exists $parameters->{$parameter};
+
+        }
+    }
+    
+    # create information object.
+    my %info = (
+        caller   => [caller 1],
+        command  => $command,
+        priority => $priority
+    );
+    
+    # call info sub.
+    $info_sub->(\%info);
+    
+    # call it. don't continue if it returns a false value.
+    $uic->{event_data}{callback}($final_params, $return, \%info) or $uic->{event_stop} = 1;
+    
+    # return 1 if wants_return.
+    return 1 if $info{wants_return};
+    return;
+    
 }
 
 # fire a command's handlers.
@@ -255,55 +301,15 @@ sub register_handler {
 # otherwise, fire_handler() returns undef.
 sub fire_handler {
     my ($uic, $command, $parameters, $info_sub) = @_;
-
-    # no handlers for this command.
-    return unless $uic->{handlers}{$command};
-    
-    # call each handler descending by priority.
     my $return = {};
-    PRIORITY: foreach my $priority (sort { $b <=> $a } keys %{$uic->{handlers}{$command}}) {
-    HANDLER:  foreach my $h (@{$uic->{handlers}{$command}{$priority}}) {
-    
-        # handle parameters.
-        my $final_params = UIC::ParameterList->new;
-        
-        # hash of parameters.
-        if ($parameters && ref $h->{parameters}) {
-            PARAMETER: foreach my $parameter (keys %{$h->{parameters}}) {
-                
-                # types do not match.
-                next PARAMETER if ($h->{parameters}{$parameter} ne $parameters->type_of($parameter));
-                
-                # okay.
-                $final_params->add($parameter, $h->{parameters}{$parameter}, $parameters->{$parameter})
-                if exists $parameters->{$parameter};
+   
+    # fire the event.
+    $uic->fire_event("uic.commandHandler.$command" => $info_sub, $parameters, $return);
 
-            }
-        }
-        
-        # accepts all parameters.
-        elsif ($parameters && $h->{parameters} eq 'all') {
-            $final_params = $parameters;
-        }
-    
-        # create information object.
-        my %info = (
-            caller   => [caller 1],
-            command  => $command,
-            priority => $priority
-        );
-        
-        # call info sub.
-        $info_sub->(\%info);
-        
-        # call it. don't continue if it returns a false value.
-        $h->{callback}($final_params, $return, \%info) or last PRIORITY;
-        
-        # if the command expects a return value, return it.
-        return $return if $info{wants_return};
-        
-    }}
+    # return $return if the last callback returned one.
+    return $return if $uic->{event_return};
     return;
+    
 }
 
 ###################
