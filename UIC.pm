@@ -47,13 +47,47 @@ sub log {
 ### HANDLING AND PREPARING DATA ####
 ####################################
 
+# this actually handles the data, calling the parse handlers.
+# this is used for both UIC clients and UICd.
 sub parse_data {
     my ($uic, $data) = @_;
     # blah blah, call handlers.
 }
 
 # registers a data parsing handler.
+# type should a human-readable single-word type of the parser, such as 'UICdUJCParser'
+# the type must be completely unique.
+# returns the identifier of the handler.
 sub register_parse_handler {
+    my ($uic, $type, $callback) = @_;
+    my $name = "uic.parseHandler.$type";
+    
+    # create the event.
+    $uic->register_event(
+        $name => $callback,
+        name  => $name
+    );
+    
+    # store the type for later use.
+    $uic->{parseHandlers} ||= [];
+    push @{$uic->{parseHandlers}}, $type;
+    
+    return $name;
+}
+
+# deletes a data parsing handler.
+sub delete_parse_handler {
+    my ($uic, $type) = @_;
+    my $name = "uic.parseHandler.$type";
+    return unless $uic->{parseHandlers};
+    
+    # remove the type.
+    $uic->{parseHandlers} = [ grep { $_ ne $type } @{$uic->{parseHandlers}} ];
+    
+    # delete the event.
+    $uic->delete_event($name => $name);
+    
+    return 1;
 }
 
 # converts any instances of UIC::Object to actual objects if possible.
