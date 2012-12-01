@@ -259,15 +259,17 @@ sub _handler_callback {  # actual parameter values.
     # handle parameters.
     my $final_params = UIC::ParameterList->new;
     
-    # hash of parameters.
-    if ($parameters && ref $h->{parameters}) {
-        PARAMETER: foreach my $parameter (keys %{$h->{parameters}}) {
+    # create parameters list, filtering incorrect types.
+    if ($parameters) {
+        PARAMETER: foreach my $parameter ($parameters->keys) {
             
             # types do not match.
-            next PARAMETER if ($h->{parameters}{$parameter} ne $parameters->type_of($parameter));
+            next PARAMETER
+             if $h->{parameters}{$parameter} &&
+             $h->{parameters}{$parameter} ne $parameters->type_of($parameter));
             
-            # okay.
-            $final_params->add($parameter, $h->{parameters}{$parameter}, $parameters->{$parameter})
+            # okay, let's add the parameter.
+            $final_params->add($parameter, $parameters->type_of($parameter), $parameters->{$parameter})
             if exists $parameters->{$parameter};
 
         }
