@@ -66,8 +66,8 @@ sub parse_data {
     # iterate through each parser until one works.
     my $errors = {};
     foreach my $parser (@parsers) {
-        $uic->fire_event("uic.parseHandler.$parser" => $data, $errors, $object);
-        return if $uic->{event_return};
+        my $event = $uic->fire_event("uic.parseHandler.$parser" => $data, $errors, $object);
+        return if $event->{last_return};
     }
     
     return $errors;
@@ -90,8 +90,7 @@ sub register_parse_handler {
     # create the event.
     $uic->register_event(
         $name    => $callback,
-        name     => $name,
-        with_obj => 1
+        name     => $name
     ) or return;
     
     # store the type for later use.
@@ -200,9 +199,9 @@ sub register_object_type_handler {
 # returns an object of $type with ID $id.
 sub fetch_object {
     my ($uic, $type, $id) = @_;
-    $uic->fire_event("uic.objectTypeHandler.$type");
-    return unless $uic->{event_return};
-    return $uic->{event_return};
+    my $event = $uic->fire_event("uic.objectTypeHandler.$type");
+    return if !$event->{last_return} || !ref $event->{last_return};
+    return $event->{last_return};
 }
 
 #######################
@@ -228,7 +227,7 @@ sub register_return_handler {
             my $info = shift;
             
             # TODO: check types.
-            # parameter types are stored in $uic->{event_data}{parameters}
+            # parameter types are stored in $event->{data}{parameters}
             
             $callback->($parameters, $info);
         },
@@ -300,8 +299,7 @@ sub register_handler {
     $uic->register_event(
         "uic.commandHandler.$command" => \&_handler_callback,
         name     => $name,
-        data     => \%data,
-        with_obj => 1
+        data     => \%data
     ) or return;
     
     $uic->log("registered handler $id of priority $priority for '$command' command to package $package");
@@ -311,8 +309,8 @@ sub register_handler {
 
 # not to be used directly.
 sub _handler_callback {  # actual parameter values.
-    my ($uic, $info_sub, $parameters, $return) = @_;
-    my $h = $uic->{event_data};
+    my ($event, $info_sub, $parameters, $return) = @_;
+    my $h = $event->{data};
     
     # handle parameters.
     my $final_params = UIC::ParameterList->new;
@@ -337,14 +335,14 @@ sub _handler_callback {  # actual parameter values.
     my %info = (
         caller   => [caller 1],
         command  => $h->{command},
-        priority => $uic->{event_info}{priority}
+        priority => $event->{priority}
     );
     
     # call info sub.
     $info_sub->(\%info);
     
     # call it. don't continue if it returns a false value.
-    $uic->{event_data}{callback}($final_params, $return, \%info) or $uic->{event_stop} = 1;
+    $event->{data}{callback}($final_params, $return, \%info) or $event->{stop} = 1;
     
     # return 1 if wants_return.
     return 1 if $info{wants_return};
@@ -365,10 +363,10 @@ sub fire_handler {
     my $return = {};
    
     # fire the event.
-    $uic->fire_event("uic.commandHandler.$command" => $info_sub, $parameters, $return);
+    my $event = $uic->fire_event("uic.commandHandler.$command" => $info_sub, $parameters, $return);
 
     # return $return if the last callback returned one.
-    return $return if $uic->{event_return};
+    return $return if $event->{last_return};
     return;
     
 }
